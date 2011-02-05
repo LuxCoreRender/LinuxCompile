@@ -1,0 +1,10 @@
+--- Source/FreeImageToolkit/Background.cpp.bak	2010-08-13 00:33:02.919194403 +0700
++++ Source/FreeImageToolkit/Background.cpp	2010-08-13 00:17:02.276694345 +0700
+@@ -21,6 +21,7 @@
+ 
+ #include "FreeImage.h"
+ #include "Utilities.h"
++#include <climits>
+ 
+ /** @brief Determines, whether a palletized image is visually greyscale or not.
+  

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# $1 = target dir
+# $2 = distfiles dir
+
+echo " * Preparing target tree"
+mkdir -pv $1/{bin,include,lib,share} 2>/dev/null
+#cp -vf $2/bjam $1/bin 2>/dev/null
+echo " * Done preparing target tree"
+sleep 1
