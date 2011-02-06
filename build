@@ -165,7 +165,7 @@ if [[ $STAGE && $STAGE < 5 ]] ; then
 		exit 1
 	fi
 	sleep $PAUSE
-	if gmake $MAKEOPTS && sleep $PAUSE && gmake install ; then
+	if make $MAKEOPTS && sleep $PAUSE && make install ; then
 		echo " * Qt compiled and installed successfully"
 	else
 		echo " *** Qt compilation failed!"
