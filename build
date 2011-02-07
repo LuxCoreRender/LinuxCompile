@@ -159,8 +159,7 @@ if [[ $STAGE && $STAGE < 5 ]] ; then
 	-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
 	-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
 	-make libs -make tools -nomake examples -nomake demos -nomake docs \
-	-nomake translations \
-	-I/root/luxbuild/target/include/LibPNG -L/root/luxbuild/target/lib ; then
+	-nomake translations -I${TARGET}/include/LibPNG -L${TARGET}/lib ; then
 		echo " *** Qt configuration failed!"
 		exit 1
 	fi
@@ -179,7 +178,7 @@ fi
 if [[ $STAGE && $STAGE < 6 ]] ; then
 	export HOME=${TARGET}
 	export PATH=${TARGET}/bin/:$PATH
-	export CFLAGS="${LUX_FLAGS}"
+	export CFLAGS="${LUX_FLAGS} -L${TARGET}/lib"
 	export CXXFLAGS="${CFLAGS}"
 	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
 	export BOOST_ROOT=$TARGET
@@ -225,7 +224,7 @@ fi
 if [[ $STAGE && $STAGE < 7 ]] ; then
 	export HOME=${TARGET}
 	export PATH=${TARGET}/bin/:$PATH
-	export CFLAGS="${LUX_FLAGS}"
+	export CFLAGS="${LUX_FLAGS} -L${TARGET}/lib"
 	export CXXFLAGS="${CFLAGS}"
 	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
 	export BOOST_ROOT=$TARGET
