@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [[ $1 ]] ; then
+	echo " *** BUILDING FOR IA32-SSE2 ***"
+	sleep 2
+fi
+
+LUX_TAG="$2"
+ROOT="/root/luxbuild"
+TARGET="/root/luxbuild/target-32-sse2"
+WORK="/tmp/luxbuild"
+DIST="${ROOT}/distfiles"
+DATE=`date "+%y%m%d"`
+#TAG="gcc453-i686-sse2-${DATE}-${LUX_TAG}"
+TAG="${LUX_TAG}-i686-sse2"
+
+if echo $LUX_TAG | grep -iq '\-opencl' ; then
+	LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -O3 -pipe -mfpmath=sse -fvisibility=hidden -fvisibility-inlines-hidden -ftree-vectorize -fno-math-errno -fno-signed-zeros -fno-trapping-math -fassociative-math -fno-rounding-math -fno-signaling-nans -fcx-limited-range -DBOOST_DISABLE_ASSERTS -floop-interchange -floop-strip-mine -floop-block -fsee -ftree-loop-linear -ftree-loop-distribution -ftree-loop-im -fivopts -ftracer -DHAVE_PTHREAD_H -L${DIST}/stdc32 -L${DIST}/python32 -fPIC"
+fi
+
+# core2 building flags
+GENERIC_FLAGS="-mtune=generic -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
+LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fvisibility=hidden -fvisibility-inlines-hidden -ftree-vectorize -fno-math-errno -fno-signed-zeros -fno-trapping-math -fassociative-math -fno-rounding-math -fno-signaling-nans -fcx-limited-range -DBOOST_DISABLE_ASSERTS -floop-interchange -floop-strip-mine -floop-block -fsee -ftree-loop-linear -ftree-loop-distribution -ftree-loop-im -fivopts -ftracer -DHAVE_PTHREAD_H -L${DIST}/stdc32 -L${DIST}/python32 -fPIC"
+
+# x86_64
+CHOST="i686-pc-linux-gnu"
+MAKEOPTS="-j7"
+
+if echo $LUX_TAG | grep -iq '\-opencl' ; then
+	echo " * Lessening Lux optimizations"
+	# stripped: -floop-block -floop-interchange -floop-strip-mine
+	LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -O3 -pipe -mfpmath=sse -fvisibility=hidden -fvisibility-inlines-hidden -ftree-vectorize -fno-math-errno -fno-signed-zeros -fno-trapping-math -fassociative-math -fno-rounding-math -fno-signaling-nans -fcx-limited-range -DBOOST_DISABLE_ASSERTS -fsee -ftree-loop-linear -ftree-loop-distribution -ftree-loop-im -fivopts -ftracer -DHAVE_PTHREAD_H -L${DIST}/stdc32 -L${DIST}/python32 -fPIC"
+fi
+
+if ! $ROOT/build $1 "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" "$LUX_FLAGS" "$CHOST" "$MAKEOPTS" ; then
+    exit 1
+fi
+
+if ! $ROOT/utils/install "$TARGET" "$LUX_TAG" "$TAG" ; then
+    echo " * Installation FAILED"
+else
+    echo " * Installed successfully to $TARGET/$LUX_TAG"
+    echo " * DONE"
+fi

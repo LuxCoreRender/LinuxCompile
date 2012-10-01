@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# target dir
+TARGET=$1
+# distfiles dir
+DIST=$2
+
+if echo $TARGET | grep -q '\-32' ; then
+	ARCH="i686"
+	EXT="32"
+elif echo $TARGET | grep -q '\-64' ; then
+	ARCH="x86_64"
+	EXT="64"
+fi
+
+echo " * Checking distfiles"
+sleep 1
+for LINE in `cat $DIST/files` ; do
+	FILE=`echo $LINE | cut -d'@' -f1`
+	HASH=`echo $LINE | cut -d'@' -f2`
+	URL=`echo $LINE | cut -d'@' -f3`
+	if [ ! -f $DIST/$FILE ] ; then
+		echo " * Downloading $FILE"
+		wget -c -O $DIST/$FILE $URL
+	fi
+	echo "$HASH $DIST/$FILE" | sha1sum --status -c -
+	if [ $? != 0 ] ; then
+		echo " !!! Hash mismatch for $FILE"
+		exit 1
+	fi
+done
+echo " * Done checking distfiles"
+
+echo " * Checking libstdc++"
+sleep 1
+if [[ ! -e $DIST/stdc${EXT}/libstdc++.a ]] ; then
+	echo " * Library not found, attempting to figure out the proper location"
+	STDC=/usr/lib/gcc/${ARCH}-pc-linux-gnu/`gcc -dumpversion`/libstdc++.a
+	if [[ -e $STDC ]] ; then
+		echo " * Found at $STDC"
+		echo " * Updating a symlink"
+		ln -vfs $STDC $DIST/stdc${EXT}/libstdc++.a
+	else
+		echo " !!! Unable to find at $STDC"
+		echo " !!! You have to find the library and symlink it to this location:"
+		echo " !!! $DIST/stdc${EXT}/libstdc++.a"
+		exit 1
+	fi
+fi
+echo " * Done checking libstdc++"
+
+echo " * Checking python"
+sleep 1
+PYVER=`python --version 2>&1`
+if [ `echo $PYVER | cut -d' ' -f2 | cut -d'.' -f1` != '3' ] ; then
+    echo " !!! Python major version '3' is required"
+    exit 1
+fi
+PYLIB=libpython`echo $PYVER | cut -d' ' -f2 | cut -d'.' -f'1-2'`.a
+PYLIBPATH=/usr/lib`([ $EXT == "64" ] && echo -n 64)`/$PYLIB
+if [[ ! -e $DIST/python${EXT}/$PYLIB ]] ; then
+	echo " * Library not found, attempting to figure out the proper location"
+    if [[ -e $PYLIBPATH ]] ; then
+        echo " * Found at $PYLIBPATH"
+        echo " * Updating a symlink"
+        ln -vfs $PYLIBPATH $DIST/python${EXT}/$PYLIB
+    else
+        echo " !!! Unable to find at $PYLIBPATH"
+        echo " !!! You have to find the library and symlink it to this location:"
+        echo " !!! $DIST/python${EXT}/$PYLIB"
+        exit 1
+    fi
+fi
+echo " * Done checking python"
+
+echo " * Checking target tree"
+sleep 1
+if [[ ! -d $TARGET ]] ; then
+	echo " * Target tree is absent, populating"
+	mkdir -pv $TARGET/{bin,include/GL,lib,share} 2>/dev/null
+	cp -vf /usr/lib/libGLEW*.a $TARGET/lib
+	cp -vf /usr/include/GL/*gl*ew.h $TARGET/include/GL
+	echo " * Done creating target tree"
+else
+	echo " * Target tree exists"
+fi
+
+# updating target link
+ln -fs $TARGET ../target
+
+echo " * Prechecks completed"
+echo
+sleep 1

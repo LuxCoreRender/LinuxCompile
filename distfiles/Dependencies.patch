@@ -1,0 +1,20 @@
+--- Dependencies.cmake.bak	2011-07-18 17:22:53.704209150 +0700
++++ Dependencies.cmake	2011-07-18 17:23:46.127209126 +0700
+@@ -182,16 +182,7 @@
+ #############################################################################
+ 
+ # !!!!freeimage needs headers from or matched with freeimage !!!!
+-IF(APPLE)
+-	SET(OPENEXR_ROOT ${OSX_DEPENDENCY_ROOT})
+-ENDIF(APPLE)
+-FIND_PACKAGE(OpenEXR)
+-IF (OPENEXR_INCLUDE_DIRS)
+-	MESSAGE(STATUS "OpenEXR include directory: " ${OPENEXR_INCLUDE_DIRS})
+-	INCLUDE_DIRECTORIES(SYSTEM ${OPENEXR_INCLUDE_DIRS})
+-ELSE(OPENEXR_INCLUDE_DIRS)
+-	MESSAGE(FATAL_ERROR "OpenEXR headers not found.")
+-ENDIF(OPENEXR_INCLUDE_DIRS)
++SET(OPENEXR_INCLUDE_DIRS "${HOME}/include/OpenEXR")
+ 
+ 
+ #############################################################################

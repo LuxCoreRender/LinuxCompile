@@ -1,0 +1,26 @@
+--- CMakeLists.txt.bak	2012-03-29 17:17:17.050619749 +0700
++++ CMakeLists.txt	2012-03-29 17:20:42.537639061 +0700
+@@ -43,7 +43,7 @@
+ 	"${LUX_CMAKE_DIR}/SpecializedConfig"
+ )
+ option(LUXRAYS_DISABLE_OPENCL "Build without OpenCL support" OFF)
+-option(LUX_DOCUMENTATION "Generate project documentation" ON)
++option(LUX_DOCUMENTATION "Generate project documentation" OFF)
+ 
+ # Dade - uncomment to obtain verbose building output
+ #SET(CMAKE_VERBOSE_MAKEFILE true)
+@@ -307,12 +307,12 @@
+ ELSE(APPLE)
+ 	# Dade - default compiler options
+ 	# Removed "-O3" from definitions in order to have CMake Release/Debug options to work
+-	ADD_DEFINITIONS(-msse2 -mfpmath=sse -ftree-vectorize -funroll-loops -Wall -fPIC -DHAVE_PTHREAD_H)
++	# ADD_DEFINITIONS(-msse2 -mfpmath=sse -ftree-vectorize -funroll-loops -Wall -fPIC -DHAVE_PTHREAD_H)
+ 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fvisibility=hidden -fvisibility-inlines-hidden")
+ 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fvisibility=hidden -fvisibility-inlines-hidden")
+ 	# The QBVH accelerator needs to be compiled with much reduced optimizations
+ 	# otherwise gcc produces incorrect code and ruins the render on 64bits machines
+-	SET_SOURCE_FILES_PROPERTIES(accelerators/qbvhaccel.cpp COMPILE_FLAGS "-O1")
++	# SET_SOURCE_FILES_PROPERTIES(accelerators/qbvhaccel.cpp COMPILE_FLAGS "-O1")
+ ENDIF(APPLE)
+ 
+ #############################################################################
