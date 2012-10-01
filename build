@@ -65,8 +65,6 @@ if [[ $STAGE && $STAGE < 1.2 ]] ; then
 	rm -rf $WORK/*
 	tar -xjf ${DIST}/boost*.tar.bz2 -C $WORK
 	cd $WORK/boost*
-	#echo " * Patching boost for python 3.2"
-	#patch libs/python/src/converter/builtin_converters.cpp ${DIST}/boost-compile-fix-for-Python32-v2.patch
 	echo " * Compiling boost"
 	if ! ./bootstrap.sh --with-toolset=gcc --without-icu --prefix=$TARGET/boost --with-python=/usr/bin/python3.2 ; then
 		echo " !!! Boost bootstrap failed"
@@ -140,8 +138,6 @@ if [[ $STAGE && $STAGE < 1.5 ]] ; then
 		exit 1
 	fi
 	sleep $PAUSE
-#	if make $MAKEOPTS && cp -vf .libs/libpng14.a $TARGET/lib && \
-#	 ln -vfs libpng14.a $TARGET/lib/libpng.a ; then
 	if make $MAKEOPTS && cp -vf .libs/libpng15.a $TARGET/lib && \
 	 ln -vfs libpng15.a $TARGET/lib/libpng.a ; then
 		echo " * PNG compiled and installed successfully"
@@ -242,6 +238,17 @@ if [[ $STAGE && $STAGE < 6 ]] ; then
 	rm -rf $WORK/luxrays $WORK/qt-*
 	cp -r $ROOT/luxrays $WORK
 	cd $WORK/luxrays
+	if [[ ! -e CMakeLists.txt.bak ]] ; then
+		echo " * Preparing CMakeLists.txt"
+		cp -v CMakeLists.txt CMakeLists.txt.bak
+		if patch CMakeLists.txt ${DIST}/CMakeLists-luxrays.patch ; then
+			echo
+		else
+			echo " !!! Patching failed"
+			exit 1
+		fi
+	fi
+
 	rm -fr CMakeCache.txt CMakeFiles src/CMakeFiles
 	rm -fr lib
 	cp -vf ${DIST}/sattva-luxrays.cmake cmake/SpecializedConfig/sattva.cmake
@@ -293,7 +300,7 @@ if [[ $STAGE && $STAGE < 7 ]] ; then
 	if [[ ! -e CMakeLists.txt.bak ]] ; then
 		echo " * Preparing CMakeLists.txt"
 		cp -v CMakeLists.txt CMakeLists.txt.bak
-		if patch CMakeLists.txt ${DIST}/CMakeLists-0.9.patch && \
+		if patch CMakeLists.txt ${DIST}/CMakeLists-lux.patch && \
 		  patch cmake/Dependencies.cmake ${DIST}/Dependencies.patch ; then
 			echo
 		else

@@ -1,15 +1,26 @@
 #!/bin/bash
 
-if [[ $1 ]] ; then
-	echo " *** BUILDING FOR X86-64 (SSE2) ***"
-	sleep 2
-fi
-
-LUX_TAG="$2"
 ROOT="/root/luxbuild"
 TARGET="/root/luxbuild/target-64-sse2"
 WORK="/tmp/luxbuild"
 DIST="${ROOT}/distfiles"
+
+if [[ $1 ]] ; then
+	echo " *** BUILDING FOR X86-64 (SSE2) ***"
+	sleep 2
+else
+    ./build
+    exit 1
+fi
+
+if [[ ! $2 ]] ; then
+    LUX_TAG="$1"
+    STAGE=5
+else
+	LUX_TAG="$2"
+	STAGE=$1
+fi
+
 DATE=`date "+%y%m%d"`
 #TAG="gcc453-x86_64-sse2-${DATE}-${LUX_TAG}"
 TAG="${LUX_TAG}-x86_64-sse2"
@@ -22,7 +33,7 @@ LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -msse2 -O3 -pipe -mfpmath=s
 CHOST="x86_64-pc-linux-gnu"
 MAKEOPTS="-j7"
 
-if ! $ROOT/build $1 "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" "$LUX_FLAGS" "$CHOST" "$MAKEOPTS" ; then
+if ! $ROOT/build $STAGE "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" "$LUX_FLAGS" "$CHOST" "$MAKEOPTS" ; then
     exit 1
 fi
 

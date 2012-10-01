@@ -14,7 +14,6 @@ elif echo $TARGET | grep -q '\-64' ; then
 fi
 
 echo " * Checking distfiles"
-sleep 1
 for LINE in `cat $DIST/files` ; do
 	FILE=`echo $LINE | cut -d'@' -f1`
 	HASH=`echo $LINE | cut -d'@' -f2`
@@ -32,7 +31,6 @@ done
 echo " * Done checking distfiles"
 
 echo " * Checking libstdc++"
-sleep 1
 if [[ ! -e $DIST/stdc${EXT}/libstdc++.a ]] ; then
 	echo " * Library not found, attempting to figure out the proper location"
 	STDC=/usr/lib/gcc/${ARCH}-pc-linux-gnu/`gcc -dumpversion`/libstdc++.a
@@ -50,7 +48,6 @@ fi
 echo " * Done checking libstdc++"
 
 echo " * Checking python"
-sleep 1
 PYVER=`python --version 2>&1`
 if [ `echo $PYVER | cut -d' ' -f2 | cut -d'.' -f1` != '3' ] ; then
     echo " !!! Python major version '3' is required"
@@ -74,7 +71,6 @@ fi
 echo " * Done checking python"
 
 echo " * Checking target tree"
-sleep 1
 if [[ ! -d $TARGET ]] ; then
 	echo " * Target tree is absent, populating"
 	mkdir -pv $TARGET/{bin,include/GL,lib,share} 2>/dev/null

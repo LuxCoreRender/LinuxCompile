@@ -1,15 +1,26 @@
 #!/bin/bash
 
-if [[ $1 ]] ; then
-	echo " *** BUILDING FOR IA32-SSE ***"
-	sleep 2
-fi
-
-LUX_TAG="$2"
 ROOT="/root/luxbuild"
 TARGET="/root/luxbuild/target-32-sse"
 WORK="/tmp/luxbuild"
 DIST="${ROOT}/distfiles"
+
+if [[ $1 ]] ; then
+	echo " *** BUILDING FOR IA32-SSE ***"
+	sleep 2
+else
+	$ROOT/build
+	exit 1
+fi
+
+if [[ ! $2 ]] ; then
+    LUX_TAG="$1"
+    STAGE=5
+else
+    LUX_TAG="$2"
+    STAGE=$1
+fi
+
 DATE=`date "+%y%m%d"`
 #TAG="gcc453-i686-sse-${DATE}-${LUX_TAG}"
 TAG="${LUX_TAG}-i686-sse"
@@ -28,7 +39,7 @@ if echo $LUX_TAG | grep -iq '\-opencl' ; then
 	LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -O3 -pipe -mfpmath=sse -fvisibility=hidden -fvisibility-inlines-hidden -ftree-vectorize -fno-math-errno -fno-signed-zeros -fno-trapping-math -fassociative-math -fno-rounding-math -fno-signaling-nans -fcx-limited-range -DBOOST_DISABLE_ASSERTS -fsee -ftree-loop-linear -ftree-loop-distribution -ftree-loop-im -fivopts -ftracer -DHAVE_PTHREAD_H -L${DIST}/stdc32 -L${DIST}/python32 -fPIC"
 fi
 
-if ! $ROOT/build $1 "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" "$LUX_FLAGS" "$CHOST" "$MAKEOPTS" ; then
+if ! $ROOT/build $STAGE "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" "$LUX_FLAGS" "$CHOST" "$MAKEOPTS" ; then
     exit 1
 fi
 
