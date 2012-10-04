@@ -9,7 +9,9 @@ if [[ $1 ]] ; then
 	echo " *** BUILDING FOR IA32-SSE ***"
 	sleep 2
 else
-	$ROOT/build
+    echo
+    echo "Syntax: [stage] <lux_src_dir>"
+    ./build | tail -n9
 	exit 1
 fi
 

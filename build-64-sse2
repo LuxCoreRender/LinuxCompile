@@ -9,7 +9,9 @@ if [[ $1 ]] ; then
 	echo " *** BUILDING FOR X86-64 (SSE2) ***"
 	sleep 2
 else
-    ./build
+	echo
+	echo "Syntax: [stage] <lux_src_dir>"
+    ./build | tail -n9
     exit 1
 fi
 
