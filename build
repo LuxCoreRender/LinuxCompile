@@ -13,8 +13,8 @@ if [[ ! ${10} ]] ; then
 	echo "	Stage 1.4 - png"
 	echo "	Stage 2   - freeimage"
 	echo "	Stage 4   - Qt"
-	echo "	Stage 5   - luxrays"
-	echo "	Stage 6   - lux"
+	echo "	Stage 5   - luxrays/slg"
+	echo "	Stage 6   - luxrender"
 	exit 1
 fi
 
@@ -36,8 +36,18 @@ if echo $LUX_TAG | grep -vq '\-opencl' ; then
 	DISABLE_OPENCL="-D LUXRAYS_DISABLE_OPENCL=1"
 fi
 
+if [ "$DISABLE_OPENCL" ] ; then
+	LUXRAYS_TARGET='luxrays'
+	#LUXRAYS_TARGET='luxrays slg3libdemo'
+else
+	LUXRAYS_TARGET='slg3'
+	#LUXRAYS_TARGET='slg3 slg3libdemo'
+fi
+
 # build flags
 GENERIC_FLAGS="$7"
+LUXRAYS_FLAGS=`echo $8 | sed s/'-fvisibility=hidden'//`" -pthread"
+LUXRAYS_OPTS="-D SLG_INCLUDE_DIRS='${WORK}/luxrays/samples/smallluxgpu3' -D SLG_LIBRARY='${WORK}/luxrays/lib/libsmallluxgpu3.a'"
 LUX_FLAGS="$8 -I${TARGET}/include -I${TARGET}/include/OpenEXR -L${TARGET}/lib"
 
 # platform specs
@@ -59,14 +69,16 @@ cd $ROOT
 if [[ ! -d $TARGET ]] ; then STAGE=0 ; fi
 if ! $ROOT/utils/prepare "$TARGET" "$DIST" ; then exit 1 ; fi
 
-# STAGE 1.1
+# STAGE 1.1 -- Boost
 if [[ $STAGE && $STAGE < 1.2 ]] ; then
 	echo " * Cleaning and unpacking boost"
 	rm -rf $WORK/*
 	tar -xjf ${DIST}/boost*.tar.bz2 -C $WORK
 	cd $WORK/boost*
-	echo " * Compiling boost"
-	if ! ./bootstrap.sh --with-toolset=gcc --without-icu --prefix=$TARGET/boost --with-python=/usr/bin/python3.2 ; then
+	PYVER=`python --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
+	echo " * Compiling boost for python-${PYVER}"
+	sleep 1
+	if ! ./bootstrap.sh --with-toolset=gcc --without-icu --prefix=$TARGET/boost --with-python=/usr/bin/python${PYVER} ; then
 		echo " !!! Boost bootstrap failed"
 		exit 1
 	fi
@@ -80,7 +92,7 @@ if [[ $STAGE && $STAGE < 1.2 ]] ; then
 	sleep $PAUSE
 fi
 
-# STAGE 1.2
+# STAGE 1.2 -- Jpeg
 if [[ $STAGE && $STAGE < 1.3 ]] ; then
 	echo " * Cleaning and unpacking jpeg"
 	rm -rf $WORK/*
@@ -104,7 +116,7 @@ if [[ $STAGE && $STAGE < 1.3 ]] ; then
 	sleep $PAUSE
 fi
 
-# STAGE 1.3
+# STAGE 1.3 -- Tiff
 if [[ $STAGE && $STAGE < 1.4 ]] ; then
 	echo " * Cleaning and unpacking tiff"
 	rm -rf $WORK/*
@@ -126,7 +138,7 @@ if [[ $STAGE && $STAGE < 1.4 ]] ; then
 	sleep $PAUSE
 fi
 
-# STAGE 1.4
+# STAGE 1.4 -- PNG
 if [[ $STAGE && $STAGE < 1.5 ]] ; then
 	echo " * Cleaning and unpacking png"
 	rm -rf $WORK/*
@@ -149,7 +161,7 @@ if [[ $STAGE && $STAGE < 1.5 ]] ; then
 	sleep $PAUSE
 fi
 
-# STAGE 2
+# STAGE 2 -- FreeImage
 if [[ $STAGE && $STAGE < 3 ]] ; then
 	echo " * Cleaning and unpacking freeimage"
 	rm -rf $WORK/*
@@ -183,7 +195,7 @@ if [[ $STAGE && $STAGE < 3 ]] ; then
 	sleep $PAUSE
 fi
 
-# STAGE 4
+# STAGE 4 -- Qt
 if [[ $STAGE && $STAGE < 5 ]] ; then
 	echo " * Cleaning and unpacking Qt"
 	rm -rf $WORK/*
@@ -194,7 +206,7 @@ if [[ $STAGE && $STAGE < 5 ]] ; then
 		QT_PLATFORM="-platform linux-g++-32"
 	fi
 	if ! echo 'yes' | ./configure -prefix $TARGET $QT_PLATFORM \
-	-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
+	-prefix-install -release -opensource -static -reduce-relocations -opengl \
 	-no-ssse3 \
 	-no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support -no-xmlpatterns \
 	-no-multimedia -no-audio-backend -no-phonon -no-phonon-backend -no-webkit \
@@ -218,11 +230,11 @@ if [[ $STAGE && $STAGE < 5 ]] ; then
 	sleep $PAUSE
 fi
 
-# STAGE 5
+# STAGE 5 -- LuxRays/SLG/SLGRendererLib
 if [[ $STAGE && $STAGE < 6 ]] ; then
 	export HOME=${TARGET}
 	export PATH=${TARGET}/bin/:$PATH
-	export CFLAGS="${LUX_FLAGS}"
+	export CFLAGS="${LUXRAYS_FLAGS}"
 	export CXXFLAGS="${CFLAGS}"
 	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
 	export BOOST_ROOT=$TARGET
@@ -231,37 +243,31 @@ if [[ $STAGE && $STAGE < 6 ]] ; then
 	export CMAKE_LIBRARY_PATH=$TARGET/lib
 	export CMAKE_PREFIX_PATH=$TARGET
 
-	FLAGS_ESC=`$ROOT/utils/replace "$LUX_FLAGS"`
+	FLAGS_ESC=`$ROOT/utils/replace "$LUXRAYS_FLAGS"`
 	TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
 
 	echo " * Copying luxrays sources"
 	rm -rf $WORK/luxrays $WORK/qt-*
 	cp -r $ROOT/luxrays $WORK
 	cd $WORK/luxrays
-	if [[ ! -e CMakeLists.txt.bak ]] ; then
-		echo " * Preparing CMakeLists.txt"
-		cp -v CMakeLists.txt CMakeLists.txt.bak
-		if patch CMakeLists.txt ${DIST}/CMakeLists-luxrays.patch ; then
-			echo
-		else
-			echo " !!! Patching failed"
-			exit 1
-		fi
-	fi
+#	if [[ ! -e CMakeLists.txt.bak ]] ; then
+#		echo " * Preparing CMakeLists.txt"
+#		cp -v CMakeLists.txt CMakeLists.txt.bak
+#		if patch CMakeLists.txt ${DIST}/CMakeLists-luxrays.patch ; then
+#			echo
+#		else
+#			echo " !!! Patching failed"
+#			exit 1
+#		fi
+#	fi
 
 	rm -fr CMakeCache.txt CMakeFiles src/CMakeFiles
 	rm -fr lib
 	cp -vf ${DIST}/sattva-luxrays.cmake cmake/SpecializedConfig/sattva.cmake
 
-	if [ "$DISABLE_OPENCL" ] ; then
-		LUXRAYS_TARGET='luxrays'
-	else
-		LUXRAYS_TARGET='slg2'
-	fi
-
 	echo " * Configuring $LUXRAYS_TARGET"
 	make clean
-	if ! cmake $DISABLE_OPENCL -DLUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
+	if ! cmake $DISABLE_OPENCL -D BUILD_LUXMARK=1 -D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
 		echo " !!! $LUXRAYS_TARGET configuration failed"
 		exit 1
 	fi
@@ -277,7 +283,7 @@ if [[ $STAGE && $STAGE < 6 ]] ; then
 	cd $ROOT
 fi
 
-# STAGE 6
+# STAGE 6 -- LuxRender
 if [[ $STAGE && $STAGE < 7 ]] ; then
 	export HOME=${TARGET}
 	export PATH=${TARGET}:${TARGET}/bin/:$PATH
@@ -316,7 +322,7 @@ if [[ $STAGE && $STAGE < 7 ]] ; then
 
 	echo " * Configuring lux"
 	make clean
-	if ! cmake $DISABLE_OPENCL -DLUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
+	if ! cmake $DISABLE_OPENCL $LUXRAYS_OPTS -DLUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
 		echo " !!! Lux configuration failed"
 		exit 1
 	fi
@@ -330,9 +336,9 @@ if [[ $STAGE && $STAGE < 7 ]] ; then
 	fi
 	mkdir ${TARGET}/$LUX_TAG 2>/dev/null
 	cp -vf {luxconsole,luxrender,luxmerger,pylux.so,liblux.so} ${TARGET}/$LUX_TAG
-	if [[ $LUXRAYS_TARGET == 'slg2' ]] ; then
+	if [[ $LUXRAYS_TARGET != 'luxrays' ]] ; then
 		cd $WORK/luxrays
-		cp -vf bin/slg2 ${TARGET}/$LUX_TAG
+		cp -vf bin/slg3 ${TARGET}/$LUX_TAG
 	fi
 	sleep $PAUSE
 	cd $ROOT
