@@ -38,10 +38,10 @@ fi
 
 if [ "$DISABLE_OPENCL" ] ; then
 	LUXRAYS_TARGET='luxrays'
-	#LUXRAYS_TARGET='luxrays slg3libdemo'
+	#LUXRAYS_TARGET='slg4libdemo'
 else
-	LUXRAYS_TARGET='slg3'
-	#LUXRAYS_TARGET='slg3 slg3libdemo'
+	LUXRAYS_TARGET='slg4'
+	#LUXRAYS_TARGET='slg4libdemo'
 fi
 
 # build flags
@@ -338,7 +338,7 @@ if [[ $STAGE && $STAGE < 7 ]] ; then
 	cp -vf {luxconsole,luxrender,luxmerger,pylux.so,liblux.so} ${TARGET}/$LUX_TAG
 	if [[ $LUXRAYS_TARGET != 'luxrays' ]] ; then
 		cd $WORK/luxrays
-		cp -vf bin/slg3 ${TARGET}/$LUX_TAG
+		cp -vf bin/slg4 ${TARGET}/$LUX_TAG
 	fi
 	sleep $PAUSE
 	cd $ROOT
