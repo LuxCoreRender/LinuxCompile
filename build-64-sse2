@@ -23,8 +23,6 @@ else
 	STAGE=$1
 fi
 
-DATE=`date "+%y%m%d"`
-#TAG="gcc453-x86_64-sse2-${DATE}-${LUX_TAG}"
 TAG="${LUX_TAG}-x86_64-sse2"
 
 # core2 building flags

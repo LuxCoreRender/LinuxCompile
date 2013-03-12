@@ -23,8 +23,6 @@ else
     STAGE=$1
 fi
 
-DATE=`date "+%y%m%d"`
-#TAG="gcc453-i686-sse2-${DATE}-${LUX_TAG}"
 TAG="${LUX_TAG}-i686-sse2"
 
 if echo $LUX_TAG | grep -iq '\-opencl' ; then

@@ -37,17 +37,19 @@ if echo $LUX_TAG | grep -vq '\-opencl' ; then
 fi
 
 if [ "$DISABLE_OPENCL" ] ; then
-	LUXRAYS_TARGET='luxrays'
+	#LUXRAYS_TARGET='luxrays'
 	#LUXRAYS_TARGET='slg4libdemo'
+	LUXRAYS_TARGET=''
 else
-	LUXRAYS_TARGET='slg4'
+	#LUXRAYS_TARGET='slg3'
 	#LUXRAYS_TARGET='slg4libdemo'
+	LUXRAYS_TARGET=''
 fi
 
 # build flags
 GENERIC_FLAGS="$7"
 LUXRAYS_FLAGS=`echo $8 | sed s/'-fvisibility=hidden'//`" -pthread"
-LUXRAYS_OPTS="-D SLG_INCLUDE_DIRS='${WORK}/luxrays/samples/smallluxgpu3' -D SLG_LIBRARY='${WORK}/luxrays/lib/libsmallluxgpu3.a'"
+LUXRAYS_OPTS="-D SLG_INCLUDE_DIRS='${WORK}/luxrays/samples/smallluxgpu' -D SLG_LIBRARY='${WORK}/luxrays/lib/libsmallluxgpu.a'"
 LUX_FLAGS="$8 -I${TARGET}/include -I${TARGET}/include/OpenEXR -L${TARGET}/lib"
 
 # platform specs
@@ -247,7 +249,7 @@ if [[ $STAGE && $STAGE < 6 ]] ; then
 	TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
 
 	echo " * Copying luxrays sources"
-	rm -rf $WORK/luxrays $WORK/qt-*
+	rm -rf $WORK/lux* $WORK/qt-*
 	cp -r $ROOT/luxrays $WORK
 	cd $WORK/luxrays
 #	if [[ ! -e CMakeLists.txt.bak ]] ; then
@@ -267,13 +269,14 @@ if [[ $STAGE && $STAGE < 6 ]] ; then
 
 	echo " * Configuring $LUXRAYS_TARGET"
 	make clean
-	if ! cmake $DISABLE_OPENCL -D BUILD_LUXMARK=1 -D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
+	if ! cmake $DISABLE_OPENCL -D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
 		echo " !!! $LUXRAYS_TARGET configuration failed"
 		exit 1
 	fi
 	sleep $PAUSE
 	echo " * Compiling $LUXRAYS_TARGET"
 	if ! make $MAKEOPTS $LUXRAYS_TARGET ; then
+#	if ! make $LUXRAYS_TARGET ; then
 		echo " !!! $LUXRAYS_TARGET compilation failed"
 		exit 1
 	else
@@ -335,7 +338,7 @@ if [[ $STAGE && $STAGE < 7 ]] ; then
 		echo " * Lux compiled successfully"
 	fi
 	mkdir ${TARGET}/$LUX_TAG 2>/dev/null
-	cp -vf {luxconsole,luxrender,luxmerger,pylux.so,liblux.so} ${TARGET}/$LUX_TAG
+	cp -vf {luxconsole,luxrender,luxmerger,luxvr,pylux.so,liblux.so} ${TARGET}/$LUX_TAG
 	if [[ $LUXRAYS_TARGET != 'luxrays' ]] ; then
 		cd $WORK/luxrays
 		cp -vf bin/slg4 ${TARGET}/$LUX_TAG
