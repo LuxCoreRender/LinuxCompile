@@ -12,6 +12,7 @@ if [[ ! ${10} ]] ; then
 	echo "	Stage 1.3 - tiff"
 	echo "	Stage 1.4 - png"
 	echo "	Stage 2   - freeimage"
+	echo "	Stage 3   - fftw"
 	echo "	Stage 4   - Qt"
 	echo "	Stage 5   - luxrays/slg"
 	echo "	Stage 6   - luxrender"
@@ -79,6 +80,13 @@ if [[ $STAGE && $STAGE < 1.2 ]] ; then
 	cd $WORK/boost*
 	PYVER=`python --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
 	echo " * Compiling boost for python-${PYVER}"
+#	echo " * Patching boost threads detection for gcc 4.7"
+#	if patch boost/config/stdlib/libstdcpp3.hpp ${DIST}/boost_1_47_0-gcc_4_7_threads.patch ; then
+#		echo
+#	else
+#		echo " !!! Patching failed"
+#		exit 1
+#	fi
 	sleep 1
 	if ! ./bootstrap.sh --with-toolset=gcc --without-icu --prefix=$TARGET/boost --with-python=/usr/bin/python${PYVER} ; then
 		echo " !!! Boost bootstrap failed"
@@ -169,6 +177,11 @@ if [[ $STAGE && $STAGE < 3 ]] ; then
 	rm -rf $WORK/*
 	unzip -d $WORK ${DIST}/FreeImage*.zip
 	cd $WORK/FreeImage*
+#	echo " * Patching freeimage openexr for gcc 4.7"
+#	echo '' >> Source/OpenEXR/IlmBaseConfig.h
+#	echo '#include <cstring>' >> Source/OpenEXR/IlmBaseConfig.h
+#	echo '' >> Source/OpenEXR/OpenEXRConfig.h
+#	echo '#include <cstring>' >> Source/OpenEXR/OpenEXRConfig.h
 	echo " * Compiling freeimage"
 	sleep $PAUSE
 	if CFLAGS="${GENERIC_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden" \
@@ -191,6 +204,28 @@ if [[ $STAGE && $STAGE < 3 ]] ; then
 		echo " * FreeImage libs headers installed successfully"
 	else
 		echo " !!! FreeImage libs headers installation failed"
+		exit 1
+	fi
+	cd $ROOT
+	sleep $PAUSE
+fi
+
+# STAGE 3 -- FFTW
+if [[ $STAGE && $STAGE < 4 ]] ; then
+	echo " * Cleaning and unpacking fftw"
+	rm -rf $WORK/*
+	tar -xzf ${DIST}/fftw-*.tar.gz -C $WORK
+	echo " * Compiling fftw"
+	cd $WORK/fftw*
+	if ! ./configure --enable-static --disable-shared --enable-sse2 --enable-threads --with-pic $CONFIGOPTS --prefix=$TARGET ; then
+		echo " !!! FFTW configuration failed"
+		exit 1
+	fi
+	sleep $PAUSE
+	if make $MAKEOPTS && make install ; then
+		echo " * FFTW compiled and installed successfully"
+	else
+		echo " !!! FFTW compilation failed"
 		exit 1
 	fi
 	cd $ROOT
@@ -341,7 +376,7 @@ if [[ $STAGE && $STAGE < 7 ]] ; then
 	cp -vf {luxconsole,luxrender,luxmerger,luxvr,pylux.so,liblux.so} ${TARGET}/$LUX_TAG
 	if [[ $LUXRAYS_TARGET != 'luxrays' ]] ; then
 		cd $WORK/luxrays
-		cp -vf bin/slg4 ${TARGET}/$LUX_TAG
+		cp -vf bin/slg? ${TARGET}/$LUX_TAG
 	fi
 	sleep $PAUSE
 	cd $ROOT
