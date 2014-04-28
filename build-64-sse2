@@ -1,8 +1,14 @@
 #!/bin/bash
 
-ROOT="/root/luxbuild"
-TARGET="/root/luxbuild/target-64-sse2"
+# Compilation working directory (will be created or overwritten!)
 WORK="/tmp/luxbuild"
+# Nothing to change below this line
+
+# Compilation script location
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Compiled targets tree
+TARGET="${ROOT}/target-64-sse2"
+# Source code distributions of dependency libs
 DIST="${ROOT}/distfiles"
 
 if [[ $1 ]] ; then
@@ -11,7 +17,7 @@ if [[ $1 ]] ; then
 else
 	echo
 	echo "Syntax: [stage] <lux_src_dir>"
-    ./build | tail -n9
+    ./build | tail -n15
     exit 1
 fi
 

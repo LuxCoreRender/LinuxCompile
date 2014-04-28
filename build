@@ -7,11 +7,16 @@ if [[ ! ${10} ]] ; then
 	echo "<1 stage> <2 build env path> <3 target path> <4 work dir> <5 distfiles dir>..."
 	echo "...<6 lux src> <7 generic build flags> <8 lux build flags> <9 CHOST> <10 MAKEOPTS>"
 	echo
+	echo "	Stage 0.1 - zlib"
 	echo "	Stage 1.1 - boost"
 	echo "	Stage 1.2 - jpeg"
 	echo "	Stage 1.3 - tiff"
 	echo "	Stage 1.4 - png"
+	echo "	Stage 1.5 - freetype"
+	echo "	Stage 1.6 - ilmbase"
+	echo "	Stage 1.7 - openexr"
 	echo "	Stage 2   - freeimage"
+	echo "	Stage 2.1 - openimageio"
 	echo "	Stage 3   - fftw"
 	echo "	Stage 4   - Qt"
 	echo "	Stage 5   - luxrays/slg"
@@ -33,25 +38,27 @@ if [[ ! -d "$2/$6" ]] ; then
 	exit 1
 fi
 
-if echo $LUX_TAG | grep -vq '\-opencl' ; then
+if echo $LUX_TAG | grep -viq '\-opencl' ; then
 	DISABLE_OPENCL="-D LUXRAYS_DISABLE_OPENCL=1"
 fi
 
-if [ "$DISABLE_OPENCL" ] ; then
-	#LUXRAYS_TARGET='luxrays'
-	#LUXRAYS_TARGET='slg4libdemo'
-	LUXRAYS_TARGET=''
-else
-	#LUXRAYS_TARGET='slg3'
-	#LUXRAYS_TARGET='slg4libdemo'
-	LUXRAYS_TARGET=''
-fi
+#if [ "$DISABLE_OPENCL" ] ; then
+#	#LUXRAYS_TARGET='luxrays'
+#	#LUXRAYS_TARGET='slg4libdemo'
+#	LUXRAYS_TARGET=''
+#else
+#	#LUXRAYS_TARGET='slg3'
+#	#LUXRAYS_TARGET='slg4libdemo'
+#	LUXRAYS_TARGET=''
+#fi
+
+LUXRAYS_TARGET='luxrays luxcore pyluxcore slg4'
 
 # build flags
-GENERIC_FLAGS="$7"
-LUXRAYS_FLAGS=`echo $8 | sed s/'-fvisibility=hidden'//`" -pthread"
+GENERIC_FLAGS="$7 -lrt"
+LUXRAYS_FLAGS=`echo $8 | sed s/'-fvisibility=hidden'//`" -pthread -lrt"
 LUXRAYS_OPTS="-D SLG_INCLUDE_DIRS='${WORK}/luxrays/samples/smallluxgpu' -D SLG_LIBRARY='${WORK}/luxrays/lib/libsmallluxgpu.a'"
-LUX_FLAGS="$8 -I${TARGET}/include -I${TARGET}/include/OpenEXR -L${TARGET}/lib"
+LUX_FLAGS="$8 -I${TARGET}/include -L${TARGET}/lib -lrt"
 
 # platform specs
 export CHOST="$9"
@@ -72,6 +79,33 @@ cd $ROOT
 if [[ ! -d $TARGET ]] ; then STAGE=0 ; fi
 if ! $ROOT/utils/prepare "$TARGET" "$DIST" ; then exit 1 ; fi
 
+# STAGE 0.1 -- zlib
+if [[ $STAGE && $STAGE < 0.2 ]] ; then
+	echo " * Cleaning and unpacking zlib"
+	rm -rf $WORK/*
+	tar -xzf ${DIST}/zlib-*.tar.gz -C $WORK
+	echo " * Compiling zlib"
+	cd $WORK/zlib*
+    if echo $TARGET | grep -q '\-64' ; then
+        ZLIB_PLATFORM="--64"
+    else
+        ZLIB_PLATFORM=""
+    fi
+	if ! ./configure --static $ZLIB_PLATFORM --prefix=$TARGET ; then
+		echo " !!! zlib configuration failed"
+		exit 1
+	fi
+	sleep $PAUSE
+	if make $MAKEOPTS && make install ; then
+		echo " * zlib compiled and installed successfully"
+	else
+		echo " !!! zlib compilation failed"
+		exit 1
+	fi
+	cd $ROOT
+	sleep $PAUSE
+fi
+
 # STAGE 1.1 -- Boost
 if [[ $STAGE && $STAGE < 1.2 ]] ; then
 	echo " * Cleaning and unpacking boost"
@@ -80,19 +114,17 @@ if [[ $STAGE && $STAGE < 1.2 ]] ; then
 	cd $WORK/boost*
 	PYVER=`python --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
 	echo " * Compiling boost for python-${PYVER}"
-#	echo " * Patching boost threads detection for gcc 4.7"
-#	if patch boost/config/stdlib/libstdcpp3.hpp ${DIST}/boost_1_47_0-gcc_4_7_threads.patch ; then
-#		echo
-#	else
-#		echo " !!! Patching failed"
-#		exit 1
-#	fi
 	sleep 1
-	if ! ./bootstrap.sh --with-toolset=gcc --without-icu --prefix=$TARGET/boost --with-python=/usr/bin/python${PYVER} ; then
+	if ! ./bootstrap.sh --with-toolset=gcc --without-icu --prefix=$TARGET/boost \
+	--with-python=/usr/bin/python${PYVER} ; then
 		echo " !!! Boost bootstrap failed"
 		exit 1
 	fi
-	if ./bjam $MAKEOPTS -aq --toolset=gcc cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" $CONFIGOPTS --prefix=$TARGET --layout=system --with-thread --with-program_options --with-filesystem --with-serialization --with-iostreams --with-regex --with-system --with-python threading=multi link=static release install ; then
+	if ./bjam $MAKEOPTS -aq --toolset=gcc cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
+	$CONFIGOPTS --prefix=$TARGET --layout=system --with-date_time --with-filesystem \
+	--with-iostreams --with-locale --with-program_options --with-python --with-regex \
+	--with-serialization --with-system --with-thread threading=multi link=static \
+	release install ; then
 		echo " * Boost compiled and installed successfully"
 	else
 		echo " !!! Boost compilation failed"
@@ -155,13 +187,12 @@ if [[ $STAGE && $STAGE < 1.5 ]] ; then
 	tar --xz -xf ${DIST}/libpng*.tar.xz -C $WORK
 	echo " * Compiling png"
 	cd $WORK/libpng*
-	if ! ./configure --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
+	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
 		echo " !!! PNG configuration failed"
 		exit 1
 	fi
 	sleep $PAUSE
-	if make $MAKEOPTS && cp -vf .libs/libpng15.a $TARGET/lib && \
-	 ln -vfs libpng15.a $TARGET/lib/libpng.a ; then
+	if make $MAKEOPTS && make install ; then
 		echo " * PNG compiled and installed successfully"
 	else
 		echo " !!! PNG compilation failed"
@@ -171,41 +202,134 @@ if [[ $STAGE && $STAGE < 1.5 ]] ; then
 	sleep $PAUSE
 fi
 
-# STAGE 2 -- FreeImage
-if [[ $STAGE && $STAGE < 3 ]] ; then
-	echo " * Cleaning and unpacking freeimage"
+# STAGE 1.5 -- FreeType
+if [[ $STAGE && $STAGE < 1.6 ]] ; then
+	echo " * Cleaning and unpacking freetype"
 	rm -rf $WORK/*
-	unzip -d $WORK ${DIST}/FreeImage*.zip
-	cd $WORK/FreeImage*
+	tar -xjf ${DIST}/freetype-*.tar.bz2 -C $WORK
+	echo " * Compiling freetype"
+	cd $WORK/freetype*
+	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
+		echo " !!! freetype configuration failed"
+		exit 1
+	fi
+	sleep $PAUSE
+	if make $MAKEOPTS && make install ; then
+		echo " * freetype compiled and installed successfully"
+	else
+		echo " !!! freetype compilation failed"
+		exit 1
+	fi
+	cd $ROOT
+	sleep $PAUSE
+fi
+
+# STAGE 1.6 -- IlmBase
+if [[ $STAGE && $STAGE < 1.7 ]] ; then
+	echo " * Cleaning and unpacking ilmbase"
+	rm -rf $WORK/*
+	tar -xzf ${DIST}/ilmbase-*.tar.gz -C $WORK
+	echo " * Compiling ilmbase"
+	cd $WORK/ilmbase*
+	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
+		echo " !!! ilmbase configuration failed"
+		exit 1
+	fi
+	sleep $PAUSE
+	if make $MAKEOPTS && make install ; then
+		echo " * ilmbase compiled and installed successfully"
+	else
+		echo " !!! ilmbase compilation failed"
+		exit 1
+	fi
+	cd $ROOT
+	sleep $PAUSE
+fi
+
+# STAGE 1.7 -- OpenEXR
+if [[ $STAGE && $STAGE < 1.8 ]] ; then
+	echo " * Cleaning and unpacking openexr"
+	rm -rf $WORK/*
+	tar -xzf ${DIST}/openexr-*.tar.gz -C $WORK
+	echo " * Compiling openexr"
+	cd $WORK/openexr*
+	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
+		echo " !!! openexr configuration failed"
+		exit 1
+	fi
+	sleep $PAUSE
+	if make $MAKEOPTS && make install ; then
+		echo " * openexr compiled and installed successfully"
+	else
+		echo " !!! openexr compilation failed"
+		exit 1
+	fi
+	cd $ROOT
+	sleep $PAUSE
+fi
+
+# STAGE 2 -- FreeImage
+#if [[ $STAGE && $STAGE < 2.1 ]] ; then
+#	echo " * Cleaning and unpacking freeimage"
+#	rm -rf $WORK/*
+#	unzip -d $WORK ${DIST}/FreeImage*.zip
+#	cd $WORK/FreeImage*
 #	echo " * Patching freeimage openexr for gcc 4.7"
 #	echo '' >> Source/OpenEXR/IlmBaseConfig.h
 #	echo '#include <cstring>' >> Source/OpenEXR/IlmBaseConfig.h
 #	echo '' >> Source/OpenEXR/OpenEXRConfig.h
 #	echo '#include <cstring>' >> Source/OpenEXR/OpenEXRConfig.h
-	echo " * Compiling freeimage"
+#	echo " * Compiling freeimage"
+#	sleep $PAUSE
+#	if CFLAGS="${GENERIC_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden" \
+#		CXXFLAGS="${GENERIC_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden" \
+#		make $MAKEOPTS && cp -vf Dist/libfreeimage.a $TARGET/lib && cp -vf Dist/*.h $TARGET/include ; then
+#			echo " * FreeImage compiled and installed successfully"
+#	else
+#		echo " !!! FreeImage compilation failed"
+#		exit 1
+#	fi
+#	echo " * Installing freeimage libs headers"
+#	sleep $PAUSE
+#	mkdir $TARGET/include/LibPNG 2>/dev/null
+#	if find Source/LibPNG -iname '*.h' -exec cp -vf {} $TARGET/include/LibPNG \; && \
+#	  cp -vfr Source/ZLib $TARGET/include && \
+#	  cd $TARGET/include && for n in `ls -1 LibPNG/*` ; do ln -vfs $n ; done ; then
+#		echo " * FreeImage libs headers installed successfully"
+#	else
+#		echo " !!! FreeImage libs headers installation failed"
+#		exit 1
+#	fi
+#	cd $ROOT
+#	sleep $PAUSE
+#fi
+
+# STAGE 2.1 -- OpenImageIO
+if [[ $STAGE && $STAGE < 2.2 ]] ; then
+	echo " * Cleaning and unpacking openimageio"
+	rm -rf $WORK/*
+	tar -xzf ${DIST}/oiio-*.tar.gz -C $WORK
+	cd $WORK/oiio-*
+	echo " * Compiling openimageio"
 	sleep $PAUSE
-	if CFLAGS="${GENERIC_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden" \
-		CXXFLAGS="${GENERIC_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden" \
-		make $MAKEOPTS && cp -vf Dist/libfreeimage.a $TARGET/lib && cp -vf Dist/*.h $TARGET/include ; then
-			echo " * FreeImage compiled and installed successfully"
+	if CFLAGS="${GENERIC_FLAGS} -fPIC" CXXFLAGS="${CFLAGS}" \
+		CMAKE_PREFIX_PATH=$TARGET \
+		make $MAKEOPTS BOOST_HOME=$TARGET VERBOSE=1 EMBEDPLUGINS=1 USE_OPENGL=0 \
+		USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
+		USE_PYTHON=0 BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 ; then
+			echo " * openimageio compiled successfully"
 	else
-		echo " !!! FreeImage compilation failed"
+		echo " !!! openimageio compilation failed"
 		exit 1
 	fi
-	echo " * Installing freeimage libs headers"
+	echo " * Installing openimageio library and headers"
 	sleep $PAUSE
-	mkdir $TARGET/include/{LibPNG,OpenEXR} 2>/dev/null
-	if find Source/LibPNG -iname '*.h' -exec cp -vf {} $TARGET/include/LibPNG \; && \
-	  cp -vfr Source/ZLib $TARGET/include && \
-	  cd $TARGET/include && for n in `ls -1 LibPNG/*` ; do ln -vfs $n ; done && \
-	  cd $WORK/FreeImage* && \
-	  cp -vRf Source/OpenEXR/{Iex,IlmImf,Imath,Half,OpenEXRConfig.h,IlmBaseConfig.h} $TARGET/include/OpenEXR && \
-	  cd $TARGET/include/OpenEXR && find {Iex,IlmImf,Imath,Half} -iname '*.h' -exec ln -fs {} \; ; then
-		echo " * FreeImage libs headers installed successfully"
-	else
-		echo " !!! FreeImage libs headers installation failed"
-		exit 1
-	fi
+	if cp -r dist/linux*/* $TARGET ; then
+        echo " * openimageio installed successfully"
+    else
+        echo " !!! openimageio installation failed"
+        exit 1
+    fi
 	cd $ROOT
 	sleep $PAUSE
 fi
@@ -217,7 +341,8 @@ if [[ $STAGE && $STAGE < 4 ]] ; then
 	tar -xzf ${DIST}/fftw-*.tar.gz -C $WORK
 	echo " * Compiling fftw"
 	cd $WORK/fftw*
-	if ! ./configure --enable-static --disable-shared --enable-sse2 --enable-threads --with-pic $CONFIGOPTS --prefix=$TARGET ; then
+	if ! ./configure --enable-static --disable-shared --enable-sse2 --enable-threads \
+	--with-pic $CONFIGOPTS --prefix=$TARGET ; then
 		echo " !!! FFTW configuration failed"
 		exit 1
 	fi
@@ -243,16 +368,14 @@ if [[ $STAGE && $STAGE < 5 ]] ; then
 		QT_PLATFORM="-platform linux-g++-32"
 	fi
 	if ! echo 'yes' | ./configure -prefix $TARGET $QT_PLATFORM \
-	-prefix-install -release -opensource -static -reduce-relocations -opengl \
-	-no-ssse3 \
-	-no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support -no-xmlpatterns \
-	-no-multimedia -no-audio-backend -no-phonon -no-phonon-backend -no-webkit \
-	-no-svg -no-javascript-jit -no-script -no-scripttools -system-zlib -no-gif \
-	-qt-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
+	-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
+	-no-ssse3 -fast -no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support \
+	-no-xmlpatterns -no-multimedia -no-audio-backend -no-phonon -no-phonon-backend \
+	-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -system-zlib -no-gif \
+	-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
 	-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
-	-make libs -make tools -nomake examples -nomake demos -nomake docs \
-	-nomake translations \
-	-I/root/luxbuild/target/include/LibPNG -L/root/luxbuild/target/lib ; then
+	-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
+	-I/root/luxbuild/target/include/LibPNG -L/root/luxbuild/target/lib -llzma -ltiff -lbz2 ; then
 		echo " !!! Qt configuration failed"
 		exit 1
 	fi
@@ -285,19 +408,9 @@ if [[ $STAGE && $STAGE < 6 ]] ; then
 
 	echo " * Copying luxrays sources"
 	rm -rf $WORK/lux* $WORK/qt-*
-	cp -r $ROOT/luxrays $WORK
+	#cp -r $ROOT/$LUX_TAG/luxrays $WORK
+	cp -r $DIST/luxrays* $WORK
 	cd $WORK/luxrays
-#	if [[ ! -e CMakeLists.txt.bak ]] ; then
-#		echo " * Preparing CMakeLists.txt"
-#		cp -v CMakeLists.txt CMakeLists.txt.bak
-#		if patch CMakeLists.txt ${DIST}/CMakeLists-luxrays.patch ; then
-#			echo
-#		else
-#			echo " !!! Patching failed"
-#			exit 1
-#		fi
-#	fi
-
 	rm -fr CMakeCache.txt CMakeFiles src/CMakeFiles
 	rm -fr lib
 	cp -vf ${DIST}/sattva-luxrays.cmake cmake/SpecializedConfig/sattva.cmake
@@ -310,12 +423,11 @@ if [[ $STAGE && $STAGE < 6 ]] ; then
 	fi
 	sleep $PAUSE
 	echo " * Compiling $LUXRAYS_TARGET"
-	if ! make $MAKEOPTS $LUXRAYS_TARGET ; then
-#	if ! make $LUXRAYS_TARGET ; then
+	if LDFLAGS="${LDFLAGS} -ldl" make $LUXRAYS_TARGET ; then
+		echo " * $LUXRAYS_TARGET compiled successfully"
+	else
 		echo " !!! $LUXRAYS_TARGET compilation failed"
 		exit 1
-	else
-		echo " * $LUXRAYS_TARGET compiled successfully"
 	fi
 	sleep $PAUSE
 	cd $ROOT
@@ -374,10 +486,8 @@ if [[ $STAGE && $STAGE < 7 ]] ; then
 	fi
 	mkdir ${TARGET}/$LUX_TAG 2>/dev/null
 	cp -vf {luxconsole,luxrender,luxmerger,luxvr,pylux.so,liblux.so} ${TARGET}/$LUX_TAG
-	if [[ $LUXRAYS_TARGET != 'luxrays' ]] ; then
-		cd $WORK/luxrays
-		cp -vf bin/slg? ${TARGET}/$LUX_TAG
-	fi
+	cd $WORK/luxrays
+	cp -vf bin/slg? lib/*.so ${TARGET}/$LUX_TAG
 	sleep $PAUSE
 	cd $ROOT
 	exit 0
