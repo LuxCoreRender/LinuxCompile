@@ -82,7 +82,7 @@ else
 fi
 
 # updating target link
-ln -fs $TARGET ../target
+#ln -fs $TARGET ../target
 
 echo " * Prechecks completed"
 echo
