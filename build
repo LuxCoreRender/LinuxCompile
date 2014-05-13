@@ -3,6 +3,13 @@
 # TODO:
 # PROMPT_COMMAND='echo -ne "\033]0;foobar\007"'
 
+function complete_stage() {
+    local next=$1
+    cd $ROOT
+    echo -n $next > $TARGET/stage
+    sleep $PAUSE
+}
+
 if [[ ! ${8} ]] ; then
 	echo
 	echo "Pass all build options or use build-* wrappers instead."
@@ -114,9 +121,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! zlib compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 1.1 -- Boost
@@ -144,9 +149,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! Boost compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 1.2 -- Jpeg
@@ -170,9 +173,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! Jpeg compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 1.3 -- Tiff
@@ -194,9 +195,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! TIFF compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 1.4 -- PNG
@@ -218,9 +217,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! PNG compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 1.5 -- FreeType
@@ -242,9 +239,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! freetype compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 1.6 -- IlmBase
@@ -266,9 +261,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! ilmbase compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 1.7 -- OpenEXR
@@ -291,9 +284,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! openexr compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 2 -- FreeImage
@@ -329,9 +320,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! FreeImage libs headers installation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 2.1 -- OpenImageIO
@@ -359,9 +348,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
         echo " !!! openimageio installation failed"
         exit 1
     fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+    complete_stage $NEXT
 fi
 
 # STAGE 3 -- FFTW
@@ -384,9 +371,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! FFTW compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 4 -- Qt
@@ -419,9 +404,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! Qt compilation failed"
 		exit 1
 	fi
-	cd $ROOT
-	echo -n $NEXT > $TARGET/stage
-	sleep $PAUSE
+	complete_stage $NEXT
 fi
 
 # STAGE 5 -- LuxRays/SLG/SLGRendererLib
