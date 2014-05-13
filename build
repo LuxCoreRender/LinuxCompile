@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# TODO:
+# PROMPT_COMMAND='echo -ne "\033]0;foobar\007"'
+
 if [[ ! ${8} ]] ; then
 	echo
 	echo "Pass all build options or use build-* wrappers instead."
@@ -405,7 +408,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
 	-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
 	-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
-	-I/tmp/luxbuild/target/include/LibPNG -L/tmp/luxbuild/target/lib -llzma -ltiff -lbz2 ; then
+	-I${TARGET}/include/LibPNG -L${TARGET}/lib -llzma -ltiff -lbz2 ; then
 		echo " !!! Qt configuration failed"
 		exit 1
 	fi
