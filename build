@@ -405,7 +405,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
 	-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
 	-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
-	-I/root/luxbuild/target/include/LibPNG -L/root/luxbuild/target/lib -llzma -ltiff -lbz2 ; then
+	-I/tmp/luxbuild/target/include/LibPNG -L/tmp/luxbuild/target/lib -llzma -ltiff -lbz2 ; then
 		echo " !!! Qt configuration failed"
 		exit 1
 	fi
