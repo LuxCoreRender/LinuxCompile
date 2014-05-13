@@ -184,7 +184,8 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	tar -xzf ${DIST}/tiff-*.tar.gz -C $WORK
 	echo " * Compiling tiff"
 	cd $WORK/tiff*
-	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
+	if ! ./configure --enable-static --disable-shared --disable-jbig \
+	$CONFIGOPTS --prefix=$TARGET ; then
 		echo " !!! TIFF configuration failed"
 		exit 1
 	fi
@@ -393,7 +394,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
 	-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
 	-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
-	-I${TARGET}/include/LibPNG -L${TARGET}/lib -llzma -ltiff -lbz2 ; then
+	-I${TARGET}/include/LibPNG -L${TARGET}/lib -ltiff -llzma -lbz2 ; then
 		echo " !!! Qt configuration failed"
 		exit 1
 	fi
