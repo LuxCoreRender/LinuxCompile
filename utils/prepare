@@ -48,16 +48,10 @@ fi
 echo " * Done checking libstdc++"
 
 echo " * Checking python"
-PYVER=`python --version 2>&1`
+PYVER=`python3 --version 2>&1`
 if [ `echo $PYVER | cut -d' ' -f2 | cut -d'.' -f1` != '3' ] ; then
-	# Ubuntu includes both python2 and python3, try to look directly for python3
-	# executable
-	PYVER=`python3 --version 2>&1`
-
-	if [ `echo $PYVER | cut -d' ' -f2 | cut -d'.' -f1` != '3' ] ; then
-		echo " !!! Python major version '3' is required"
-		exit 1
-	fi
+    echo " !!! Python major version '3' is required"
+	exit 1
 fi
 PYLIB=libpython`echo $PYVER | cut -d' ' -f2 | cut -d'.' -f'1-2'`.a
 PYLIBPATH=/usr/lib`([ $EXT == "64" ] && echo -n 64)`/$PYLIB

@@ -17,7 +17,7 @@ if [[ $1 ]] ; then
 else
 	echo
 	echo "Syntax: <lux_src_dir> [stage]"
-    ./build | tail -n16
+    ./build | tail -n18
     exit 1
 fi
 
