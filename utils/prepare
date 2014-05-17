@@ -5,14 +5,6 @@ TARGET=$1
 # distfiles dir
 DIST=$2
 
-if echo $TARGET | grep -q '\-32' ; then
-	ARCH="i686"
-	EXT="32"
-elif echo $TARGET | grep -q '\-64' ; then
-	ARCH="x86_64"
-	EXT="64"
-fi
-
 echo " * Checking distfiles"
 for LINE in `cat $DIST/files` ; do
 	FILE=`echo $LINE | cut -d'@' -f1`
@@ -30,18 +22,31 @@ for LINE in `cat $DIST/files` ; do
 done
 echo " * Done checking distfiles"
 
+echo " * Checking target tree"
+if [[ ! -d $TARGET ]] ; then
+	echo " * Target tree is absent, populating"
+	mkdir -pv $TARGET/{bin,include/GL,lib,share} 2>/dev/null
+	cp -vf /usr/lib/libGLEW*.a $TARGET/lib
+	cp -vf /usr/include/GL/*gl*ew.h $TARGET/include/GL
+	echo " * Done creating target tree"
+else
+	echo " * Target tree exists"
+fi
+
 echo " * Checking libstdc++"
-if [[ ! -e $DIST/stdc${EXT}/libstdc++.a ]] ; then
-	echo " * Library not found, attempting to figure out the proper location"
+if [[ ! -e $TARGET/lib/libstdc++.a ]] ; then
+	echo " * Library symlink is missing, attempting to figure out the proper location"
+	ARCH="x86_64"
+	if echo $TARGET | grep -q '\-32' ; then ARCH="i686" ; fi
 	STDC=/usr/lib/gcc/${ARCH}-pc-linux-gnu/`gcc -dumpversion`/libstdc++.a
 	if [[ -e $STDC ]] ; then
 		echo " * Found at $STDC"
-		echo " * Updating a symlink"
-		ln -vfs $STDC $DIST/stdc${EXT}/libstdc++.a
+		echo " * Updating symlink"
+		ln -vfs $STDC $TARGET/lib/libstdc++.a
 	else
 		echo " !!! Unable to find at $STDC"
 		echo " !!! You have to find the library and symlink it to this location:"
-		echo " !!! $DIST/stdc${EXT}/libstdc++.a"
+		echo " !!! $TARGET/lib/libstdc++.a"
 		exit 1
 	fi
 fi
@@ -54,32 +59,22 @@ if [ `echo $PYVER | cut -d' ' -f2 | cut -d'.' -f1` != '3' ] ; then
 	exit 1
 fi
 PYLIB=libpython`echo $PYVER | cut -d' ' -f2 | cut -d'.' -f'1-2'`.a
-PYLIBPATH=/usr/lib`([ $EXT == "64" ] && echo -n 64)`/$PYLIB
-if [[ ! -e $DIST/python${EXT}/$PYLIB ]] ; then
-	echo " * Library not found, attempting to figure out the proper location"
+if echo $TARGET | grep -q '\-64' ; then EXT="64" ; fi
+PYLIBPATH=/usr/lib${EXT}/$PYLIB
+if [[ ! -e $TARGET/lib/$PYLIB ]] ; then
+	echo " * Library symlink is missing, attempting to figure out the proper location"
     if [[ -e $PYLIBPATH ]] ; then
         echo " * Found at $PYLIBPATH"
-        echo " * Updating a symlink"
-        ln -vfs $PYLIBPATH $DIST/python${EXT}/$PYLIB
+        echo " * Updating symlink"
+        ln -vfs $PYLIBPATH $TARGET/lib/$PYLIB
     else
         echo " !!! Unable to find at $PYLIBPATH"
         echo " !!! You have to find the library and symlink it to this location:"
-        echo " !!! $DIST/python${EXT}/$PYLIB"
+        echo " !!! $TARGET/lib/$PYLIB"
         exit 1
     fi
 fi
 echo " * Done checking python"
-
-echo " * Checking target tree"
-if [[ ! -d $TARGET ]] ; then
-	echo " * Target tree is absent, populating"
-	mkdir -pv $TARGET/{bin,include/GL,lib,share} 2>/dev/null
-	cp -vf /usr/lib/libGLEW*.a $TARGET/lib
-	cp -vf /usr/include/GL/*gl*ew.h $TARGET/include/GL
-	echo " * Done creating target tree"
-else
-	echo " * Target tree exists"
-fi
 
 # updating target link
 #ln -fs $TARGET ../target

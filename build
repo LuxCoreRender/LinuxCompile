@@ -72,7 +72,7 @@ if [[ ! -d "$1/$5" ]] ; then
 	exit 1
 fi
 
-if echo $LUX_TAG | grep -viq '\-opencl' ; then
+if echo $LUX_TAG | grep -viq '\-opencl$' ; then
 	DISABLE_OPENCL="-D LUXRAYS_DISABLE_OPENCL=1"
 fi
 
@@ -474,7 +474,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	echo " * Configuring $LUXRAYS_TARGET"
 	make clean
-	if ! cmake $DISABLE_OPENCL -D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
+	if ! cmake $DISABLE_OPENCL -Wno-dev -D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
 		echo " !!! $LUXRAYS_TARGET configuration failed"
 		exit 1
 	fi
@@ -516,8 +516,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	if [[ ! -e CMakeLists.txt.bak ]] ; then
 		echo " * Preparing CMakeLists.txt"
 		cp -v CMakeLists.txt CMakeLists.txt.bak
-		if patch CMakeLists.txt ${DIST}/CMakeLists-lux.patch && \
-		  patch cmake/Dependencies.cmake ${DIST}/Dependencies.patch ; then
+		if patch CMakeLists.txt ${DIST}/CMakeLists-lux.patch ; then
 			echo
 		else
 			echo " !!! Patching failed"
@@ -532,7 +531,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	echo " * Configuring lux"
 	make clean
-	if ! cmake $DISABLE_OPENCL $LUXRAYS_OPTS -DLUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
+	if ! cmake $DISABLE_OPENCL $LUXRAYS_OPTS -Wno-dev -D LUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
 		echo " !!! Lux configuration failed"
 		exit 1
 	fi

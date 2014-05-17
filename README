@@ -20,7 +20,7 @@ Layout:
    Dependencies manifest.
    
  - utils
-   Directory with a number of helper scripts.
+   Directory containing a few helper scripts.
 
 Requirements:
 ------------
@@ -68,11 +68,11 @@ Here is how you can do this:
     
     If stage number is omitted the script will continue from where it
     was previously terminated, i.e. resume compilation of unfinished
-    deps, or begin compiling LuxRays and Lux if all dependencies are
-    in place.
+    deps, or begin compiling LuxRays and LuxRender if all dependencies
+    are in place.
     
  4. Once the compilation is complete, Lux binaries and shared libs are
-    packed in tar.bz archive and saved below the platform-specific
+    packed in tar.bz2 archive and saved below the platform-specific
     'target' subdirectory.
 
 Support:
