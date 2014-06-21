@@ -33,6 +33,7 @@ LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
           -fcx-limited-range -DBOOST_DISABLE_ASSERTS -floop-interchange \
           -floop-strip-mine -floop-block -fsee -ftree-loop-linear \
           -ftree-loop-distribution -ftree-loop-im -fivopts -ftracer \
+          -fomit-frame-pointer \
           -DHAVE_PTHREAD_H -fPIC"
 CHOST="x86_64-pc-linux-gnu"
 
