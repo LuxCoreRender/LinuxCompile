@@ -21,7 +21,7 @@ else
     exit 1
 fi
 
-LUX_TAG="$1"
+LUX_TAG="${1%/}"
 STAGE=$2
 TAG="${LUX_TAG}-x86_64-sse2"
 

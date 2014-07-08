@@ -5,6 +5,26 @@ TARGET=$1
 # distfiles dir
 DIST=$2
 
+ARCH="x86_64"
+if echo $TARGET | grep -q '\-32' ; then ARCH="i686" ; fi
+
+function symlink_python() {
+    local pylib=$1
+    local location=$2
+
+    echo " * Found at $location"
+    echo " * Updating symlink"
+    ln -vfs $location $TARGET/lib/$pylib
+}
+
+function symlink_libstdc() {
+    local location=$1
+
+	echo " * Found at $location"
+	echo " * Updating symlink"
+	ln -vfs $location $TARGET/lib/libstdc++.a
+}
+
 echo " * Checking distfiles"
 for LINE in `cat $DIST/files` ; do
 	FILE=`echo $LINE | cut -d'@' -f1`
@@ -36,16 +56,16 @@ fi
 echo " * Checking libstdc++"
 if [[ ! -e $TARGET/lib/libstdc++.a ]] ; then
 	echo " * Library symlink is missing, attempting to figure out the proper location"
-	ARCH="x86_64"
-	if echo $TARGET | grep -q '\-32' ; then ARCH="i686" ; fi
-	STDC=/usr/lib/gcc/${ARCH}-pc-linux-gnu/`gcc -dumpversion`/libstdc++.a
-	if [[ -e $STDC ]] ; then
-		echo " * Found at $STDC"
-		echo " * Updating symlink"
-		ln -vfs $STDC $TARGET/lib/libstdc++.a
+	GCCVER=`gcc -dumpversion`
+	GCCVERMAJOR=`echo $GCCVER | cut -d'.' -f1-2`
+	if STDCLIBPATH=/usr/lib/gcc/${ARCH}-pc-linux-gnu/$GCCVER/libstdc++.a && [[ -e $STDCLIBPATH ]] ; then
+		symlink_libstdc $STDCLIBPATH
+	elif STDCLIBPATH=/usr/lib/gcc/${ARCH}-linux-gnu/$GCCVERMAJOR/libstdc++.a && [[ -e $STDCLIBPATH ]] ; then
+		symlink_libstdc $STDCLIBPATH
 	else
-		echo " !!! Unable to find at $STDC"
-		echo " !!! You have to find the library and symlink it to this location:"
+        echo " !!! Unable to find libstdc++.a at known locations."
+        echo " !!! You have to find the library manually and symlink"
+        echo " !!! it to the following path:"
 		echo " !!! $TARGET/lib/libstdc++.a"
 		exit 1
 	fi
@@ -58,18 +78,20 @@ if [ `echo $PYVER | cut -d' ' -f2 | cut -d'.' -f1` != '3' ] ; then
     echo " !!! Python major version '3' is required"
 	exit 1
 fi
-PYLIB=libpython`echo $PYVER | cut -d' ' -f2 | cut -d'.' -f'1-2'`.a
+PYVER=`echo $PYVER | cut -d' ' -f2 | cut -d'.' -f'1-2'`
+PYLIB=libpython"$PYVER".a
+PYLIBm=libpython"$PYVER"m.a
 if echo $TARGET | grep -q '\-64' ; then EXT="64" ; fi
-PYLIBPATH=/usr/lib${EXT}/$PYLIB
 if [[ ! -e $TARGET/lib/$PYLIB ]] ; then
 	echo " * Library symlink is missing, attempting to figure out the proper location"
-    if [[ -e $PYLIBPATH ]] ; then
-        echo " * Found at $PYLIBPATH"
-        echo " * Updating symlink"
-        ln -vfs $PYLIBPATH $TARGET/lib/$PYLIB
+    if PYLIBPATH=/usr/lib${EXT}/$PYLIB && [[ -e $PYLIBPATH ]] ; then
+    	symlink_python $PYLIB $PYLIBPATH
+    elif PYLIBPATH=/usr/lib/${ARCH}-linux-gnu/$PYLIBm && [[ -e $PYLIBPATH ]] ; then
+    	symlink_python $PYLIB $PYLIBPATH
     else
-        echo " !!! Unable to find at $PYLIBPATH"
-        echo " !!! You have to find the library and symlink it to this location:"
+        echo " !!! Unable to find $PYLIB or $PYLIBm at known"
+        echo " !!! locations. You have to find the library manually and"
+        echo " !!! symlink it to the following path:"
         echo " !!! $TARGET/lib/$PYLIB"
         exit 1
     fi

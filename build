@@ -468,12 +468,11 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	rm -rf $WORK/*
 	cp -r $ROOT/$LUX_TAG/luxrays $WORK
 	cd $WORK/luxrays
-	rm -fr CMakeCache.txt CMakeFiles src/CMakeFiles
-	rm -fr lib
+#	rm -fr CMakeCache.txt CMakeFiles src/CMakeFiles
+#	rm -fr lib
 	cp -vf ${DIST}/sattva-luxrays.cmake cmake/SpecializedConfig/sattva.cmake
 
 	echo " * Configuring $LUXRAYS_TARGET"
-	make clean
 	if ! cmake $DISABLE_OPENCL -Wno-dev -D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
 		echo " !!! $LUXRAYS_TARGET configuration failed"
 		exit 1
@@ -525,12 +524,11 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	fi
 
 	echo " * Preparing lux config"
-	rm -rf CMakeCache.txt CMakeFiles
+#	rm -rf CMakeCache.txt CMakeFiles
 	cat $DIST/sattva-lux.cmake | perl -p -e "s/__MY_COMPILER_FLAGS__/${FLAGS_ESC}/" > cmake/SpecializedConfig/sattva.cmake
 	sleep $PAUSE
 
 	echo " * Configuring lux"
-	make clean
 	if ! cmake $DISABLE_OPENCL $LUXRAYS_OPTS -Wno-dev -D LUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
 		echo " !!! Lux configuration failed"
 		exit 1
