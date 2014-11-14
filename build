@@ -53,7 +53,7 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 3   - fftw"
 	echo "	Stage 4   - Qt"
 	echo "	Stage 5   - luxrays/slg"
-	echo "	Stage 6   - luxrender"
+	echo "	Stage 6   - luxrender/luxmark"
 	echo
 	exit 1
 fi
@@ -72,7 +72,13 @@ if [[ ! -d "$1/$5" ]] ; then
 	exit 1
 fi
 
-if echo $LUX_TAG | grep -viq '\-opencl$' ; then
+if echo $LUX_TAG | grep -iq '^luxmark-' ; then
+	IS_LUXMARK=1
+fi
+
+# disabling OpenCL support if sources dir doesn't contains "-opencl" postfix
+# and it's not a LuxMark source tree
+if echo $LUX_TAG | grep -viq '\-opencl$' && [[ ! $IS_LUXMARK ]] ; then
 	DISABLE_OPENCL="-D LUXRAYS_DISABLE_OPENCL=1"
 fi
 
@@ -512,7 +518,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	rm -rf $WORK/$LUX_TAG
 	cp -r $ROOT/$LUX_TAG $WORK
 	cd $WORK/$LUX_TAG
-	if [[ ! -e CMakeLists.txt.bak ]] ; then
+	if [[ ! -e CMakeLists.txt.bak ]] && [[ ! $IS_LUXMARK ]] ; then
 		echo " * Preparing CMakeLists.txt"
 		cp -v CMakeLists.txt CMakeLists.txt.bak
 		if patch CMakeLists.txt ${DIST}/CMakeLists-lux.patch ; then
