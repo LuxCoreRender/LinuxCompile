@@ -52,6 +52,7 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 2.1 - openimageio"
 	echo "	Stage 3   - fftw"
 	echo "	Stage 4   - Qt"
+	echo "	Stage 4.1 - Embree"
 	echo "	Stage 5   - luxrays/slg"
 	echo "	Stage 6   - luxrender/luxmark"
 	echo
@@ -235,8 +236,7 @@ NEXT=1.4
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage tiff tiff*.tar.gz
 
-	if ! ./configure --enable-static --disable-shared --disable-jbig \
-	$CONFIGOPTS --prefix=$TARGET ; then
+	if ! ./configure --enable-static --disable-shared --disable-jbig $CONFIGOPTS --prefix=$TARGET ; then
 		echo " !!! TIFF configuration failed"
 		exit 1
 	fi
@@ -261,7 +261,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		exit 1
 	fi
 	sleep $PAUSE
-	if make $MAKEOPTS && make install ; then
+	if make $MAKEOPTS && make install && cd $TARGET/include && ln -vs libpng* libpng ; then
 		echo " * PNG compiled and installed successfully"
 	else
 		echo " !!! PNG compilation failed"
@@ -353,17 +353,17 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! FreeImage compilation failed"
 		exit 1
 	fi
-	echo " * Installing freeimage libs headers"
-	sleep $PAUSE
-	mkdir $TARGET/include/LibPNG 2>/dev/null
-	if find Source/LibPNG -iname '*.h' -exec cp -vf {} $TARGET/include/LibPNG \; && \
-	  cp -vfr Source/ZLib $TARGET/include && \
-	  cd $TARGET/include && for n in `ls -1 LibPNG/*` ; do ln -vfs $n ; done ; then
-		echo " * FreeImage libs headers installed successfully"
-	else
-		echo " !!! FreeImage libs headers installation failed"
-		exit 1
-	fi
+#	echo " * Installing freeimage libs headers"
+#	sleep $PAUSE
+#	mkdir $TARGET/include/LibPNG 2>/dev/null
+#	if find Source/LibPNG -iname '*.h' -exec cp -vf {} $TARGET/include/LibPNG \; && \
+#	  cp -vfr Source/ZLib $TARGET/include && \
+#	  cd $TARGET/include && for n in `ls -1 LibPNG/*` ; do ln -vfs $n ; done ; then
+#		echo " * FreeImage libs headers installed successfully"
+#	else
+#		echo " !!! FreeImage libs headers installation failed"
+#		exit 1
+#	fi
 
 	complete_stage $NEXT
 fi
@@ -421,7 +421,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 fi
 
 # STAGE 4 -- Qt
-NEXT=5
+NEXT=4.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage Qt qt-everywhere-opensource*.tar.gz
 
@@ -432,11 +432,11 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
 	-no-ssse3 -fast -no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support \
 	-no-xmlpatterns -no-multimedia -no-audio-backend -no-phonon -no-phonon-backend \
-	-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -system-zlib -no-gif \
+	-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -qt-zlib -no-gif \
 	-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
 	-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
 	-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
-	-I${TARGET}/include/LibPNG -L${TARGET}/lib -ltiff -llzma -lbz2 ; then
+	-I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
 		echo " !!! Qt configuration failed"
 		exit 1
 	fi
@@ -447,6 +447,24 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! Qt compilation failed"
 		exit 1
 	fi
+
+	complete_stage $NEXT
+fi
+
+# STAGE 4.1 -- Embree
+NEXT=4.2
+if [[ $STAGE && $STAGE < $NEXT ]] ; then
+	begin_stage Embree embree-bin-*_linux.zip
+
+    echo " * Patching install.sh for custom prefix support"
+    patch install.sh $DIST/embree-install.patch
+    sleep 1
+    if ./install.sh $TARGET ; then
+        echo " * Embree library and headers installed successfully"
+    else
+        echo " !!! Embree library and headers installation failed"
+        exit 1
+    fi
 
 	complete_stage $NEXT
 fi

@@ -22,6 +22,9 @@ ADD_DEFINITIONS(-DFREEIMAGE_LIB)
 SET(BOOST_ROOT                "${lux_SOURCE_DIR}/../target")
 SET(BOOST_INCLUDEDIR          "${BOOST_ROOT}/include")
 
+SET(OPENCL_SEARCH_PATH        "/usr/src/opencl-sdk/include")
+SET(OPENCL_LIBRARYDIR         "${OPENCL_SEARCH_PATH}/lib/x86_64")
+
 SET(CMAKE_BUILD_TYPE "Release")
 
 ADD_DEFINITIONS(__MY_COMPILER_FLAGS__)
