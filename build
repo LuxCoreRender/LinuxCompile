@@ -191,11 +191,12 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	echo " * Compiling boost for python-${PYVER}"
 	sleep 1
 	if ! ./bootstrap.sh --with-toolset=gcc --without-icu --prefix=$TARGET/boost \
-	--with-python=/usr/bin/python${PYVER} ; then
+	--with-python=/usr/bin/python${PYVER} \
+	--with-python-root=`python -c "import sys; print(sys.prefix)"` ; then
 		echo " !!! Boost bootstrap failed"
 		exit 1
 	fi
-	if ./bjam $MAKEOPTS -aq --toolset=gcc cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
+	if ./b2 $MAKEOPTS -aq --toolset=gcc cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
 	$CONFIGOPTS --prefix=$TARGET --layout=system --with-date_time --with-filesystem \
 	--with-iostreams --with-locale --with-program_options --with-python --with-regex \
 	--with-serialization --with-system --with-thread threading=multi link=static \
@@ -214,7 +215,8 @@ NEXT=1.3
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage jpeg jpeg*.tar.gz
 
-	cp /usr/bin/libtool .
+	cp /usr/bin/libtool /usr/share/gnuconfig/config.guess \
+	/usr/share/gnuconfig/config.sub .
 	if ! ./configure $CONFIGOPTS --enable-static --prefix=$TARGET ; then
 		echo " !!! Jpeg configuration failed"
 		exit 1
@@ -377,7 +379,8 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	cp -vf $DIST/oiio-1.3.13-plugin.cpp src/libutil/plugin.cpp
 	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET VERBOSE=0 \
 	EMBEDPLUGINS=1 USE_OPENGL=0 USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
-	USE_PYTHON=0 BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 ; then
+	USE_PYTHON=0 BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 \
+	STOP_ON_WARNING=0 ; then
 		echo " * openimageio compiled successfully"
 	else
 		echo " !!! openimageio compilation failed"
@@ -441,7 +444,8 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		exit 1
 	fi
 	sleep $PAUSE
-	if gmake $MAKEOPTS && sleep $PAUSE && gmake install ; then
+	COMMAND=`which gmake 2>/dev/null || which make 2>/dev/null`
+	if $COMMAND $MAKEOPTS && sleep $PAUSE && $COMMAND install ; then
 		echo " * Qt compiled and installed successfully"
 	else
 		echo " !!! Qt compilation failed"
@@ -490,7 +494,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	echo " * Copying luxrays sources"
 	rm -rf $WORK/*
-	cp -r $ROOT/$LUX_TAG/luxrays $WORK
+	cp -r $ROOT/$LUX_TAG/luxrays/ $WORK
 	cd $WORK/luxrays
 #	rm -fr CMakeCache.txt CMakeFiles src/CMakeFiles
 #	rm -fr lib
@@ -534,7 +538,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	echo " * Copying lux sources"
 	rm -rf $WORK/$LUX_TAG
-	cp -r $ROOT/$LUX_TAG $WORK
+	cp -Lr $ROOT/$LUX_TAG/ $WORK
 	cd $WORK/$LUX_TAG
 	if [[ ! -e CMakeLists.txt.bak ]] && [[ ! $IS_LUXMARK ]] ; then
 		echo " * Preparing CMakeLists.txt"

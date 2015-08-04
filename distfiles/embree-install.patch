@@ -1,0 +1,9 @@
+--- install.sh.bak	2014-11-29 17:43:30.342576312 +0600
++++ install.sh	2014-11-29 17:50:00.651567860 +0600
+@@ -4,4 +4,4 @@
+ 
+-INCLUDE_INSTALL_DIR=/usr/local/include
+-LIBRARY_INSTALL_DIR=/usr/local/lib
++INCLUDE_INSTALL_DIR=$1/include
++LIBRARY_INSTALL_DIR=$1/lib
+ 
