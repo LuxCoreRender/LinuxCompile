@@ -99,6 +99,9 @@ CONFIGOPTS="--build=$CBUILD --host=$CHOST"
 export CFLAGS="${GENERIC_FLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export MAKEOPTS="-j"$(( `grep processor /proc/cpuinfo | wc -l` + 1))
+export TMP="$WORK"
+export TEMP="$WORK"
+export TMPDIR="$WORK"
 
 #####################################
 
