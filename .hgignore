@@ -1,0 +1,3 @@
+^distfiles/*
+^Python-3.3.3/*
+^target-64-sse2/*

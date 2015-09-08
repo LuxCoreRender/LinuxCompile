@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Compilation working directory (will be created or overwritten!)
+WORK="/tmp/luxbuild"
+# No real need to change anything below this line
+
+# Compilation script location
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Compiled targets tree
+TARGET="${ROOT}/target-64-sse2"
+# Source code distributions of dependency libs
+DIST="${ROOT}/distfiles"
+
+if [[ $1 ]] ; then
+	echo " *** BUILDING FOR X86-64 (SSE2) ***"
+	sleep 2
+else
+	echo
+	echo "Syntax: <lux_src_dir> [stage]"
+    ./build | tail -n19
+    exit 1
+fi
+
+LUX_TAG="${1%/}"
+STAGE=$2
+TAG="${LUX_TAG}-x86_64-sse2"
+
+GENERIC_FLAGS="-mtune=generic -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
+LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
+          -mfpmath=sse -fvisibility=hidden -fvisibility-inlines-hidden \
+          -ftree-vectorize -fno-math-errno -fno-signed-zeros -fno-trapping-math \
+          -fassociative-math -fno-rounding-math -fno-signaling-nans \
+          -fcx-limited-range -DBOOST_DISABLE_ASSERTS -floop-interchange \
+          -floop-strip-mine -floop-block -fsee -ftree-loop-linear \
+          -ftree-loop-distribution -ftree-loop-im -fivopts -ftracer \
+          -fomit-frame-pointer \
+          -DHAVE_PTHREAD_H -fPIC -fno-stack-protector"
+CHOST="x86_64-pc-linux-gnu"
+
+if ! $ROOT/build "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" \
+"$LUX_FLAGS" "$CHOST" $STAGE ; then
+    exit 1
+fi
+
+if ! $ROOT/utils/install "$TARGET" "$LUX_TAG" "$TAG" ; then
+    echo " * Installation FAILED"
+else
+    echo " * Installed successfully to $TARGET/$LUX_TAG"
+    echo " * DONE"
+fi
+

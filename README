@@ -1,0 +1,83 @@
+
+LuxRender Static Compilation Environment
+========================================
+
+This collection of scripts is intended for automatic creation of build
+environment and Lux compilation with statically linked dependency libs.
+
+Layout:
+------
+ - build
+   The main routine.
+   
+ - build-{32,64}-*
+   Wrapper scripts for compiling on the most common platforms.
+   
+ - distfiles
+   Directory for the downloaded dependencies sources.
+   
+ - distfiles/files
+   Dependencies manifest.
+   
+ - utils
+   Directory containing a few helper scripts.
+
+Requirements:
+------------
+Some dependencies aren't addressed by the script, and must be resolved
+by the user prior to compilation. Among them are:
+ - Python 3 (3.3 for use with Blender 2.65 and above)
+ - OpenGL Graphics Library (MESA)
+ - OpenGL Extension Wrangler Library (GLEW)
+ - OpenCL library and header files (if you need OpenCL support)
+
+Running build script for the first time will download dependencies
+sources into the distfiles dir, taking about 300 MB of disk space.
+Complete environment requires additional 300-400 MB for each architecture.
+You also need enough space in your tmp directory to allow unpacking and
+compilation of the largest deps -- Boost and Qt.
+
+Usage:
+-----
+When build script is envoked, it will check for the main prereqisites,
+try to figure out what's missing, and prepare the compilation environment
+below the 'root' directory -- the dir where the script resides (although
+paths are configurable in build-* wrapper scripts).
+
+The easies way to start compilation is by using the wrapper scripts
+which have all the variables preconfigured for the most common platforms.
+Here is how you can do this:
+
+ 1. Unpack LuxRender sources into the subdirectory below 'root' directory
+    (where scripts are located). The subdir with Lux sources may have
+    any name, however if it ends with '-opencl' then OpenCL-enabled
+    version is compiled; if the name doesn't have this extension then
+    Lux is compiled without OpenCL support.
+    
+ 2. Unpack LuxRays sources into the 'luxrays' subdirectory below Lux
+    sources directory.
+    
+ 3. Run the wrapper script passing it the name of LuxRender sources dir
+    and optionally the stage number:
+    ./build-64-sse2 <lux sources> [stage]
+    
+    To see a list of valid stage numbers run the script without any
+    parameters. Specifying a stage allows you to recompile any deps if
+    needed (however in such a case it's usually better to delete
+    target-* dir altogether and start from scratch).
+    
+    If stage number is omitted the script will continue from where it
+    was previously terminated, i.e. resume compilation of unfinished
+    deps, or begin compiling LuxRays and LuxRender if all dependencies
+    are in place.
+    
+ 4. Once the compilation is complete, Lux binaries and shared libs are
+    packed in tar.bz2 archive and saved below the platform-specific
+    'target' subdirectory.
+
+Support:
+-------
+If you have any questions and suggestions regarding these tools, leave
+them in http://www.luxrender.net/forum/viewforum.php?f=22
+
+
