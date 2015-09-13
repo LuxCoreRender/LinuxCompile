@@ -10,6 +10,8 @@ function begin_stage() {
 
 	if echo $distfile_mask | grep -q '\.tar\.gz$' ; then
 		tar -xzf ${DIST}/$distfile_mask -C $WORK
+	elif echo $distfile_mask | grep -q '\.tgz$' ; then
+		tar -xzf ${DIST}/$distfile_mask -C $WORK
 	elif echo $distfile_mask | grep -q '\.tar\.bz2$' ; then
 		tar -xjf ${DIST}/$distfile_mask -C $WORK
 	elif echo $distfile_mask | grep -q '\.tar\.xz$' ; then
@@ -41,6 +43,7 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 0.1 - zlib"
 	echo "	Stage 0.2 - bzip2"
 	echo "	Stage 0.3 - lzma"
+	echo "	Stage 0.4 - glew"
 	echo "	Stage 1.1 - boost"
 	echo "	Stage 1.2 - jpeg"
 	echo "	Stage 1.3 - tiff"
@@ -96,8 +99,9 @@ export CHOST="$8"
 export CBUILD=$CHOST
 export LDFLAGS="-L${TARGET}/lib"
 CONFIGOPTS="--build=$CBUILD --host=$CHOST"
-export CFLAGS="${GENERIC_FLAGS}"
-export CXXFLAGS="${CFLAGS}"
+export CFLAGS="${GENERIC_FLAGS} -I$TARGET/include"
+export CXXFLAGS="${CFLAGS} -I$TARGET/include"
+export CPPFLAGS="$CPPFLAGS -I$TARGET/include"
 export MAKEOPTS="-j"$(( `grep processor /proc/cpuinfo | wc -l` + 1))
 export TMP="$WORK"
 export TEMP="$WORK"
@@ -185,6 +189,23 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	complete_stage $NEXT
 fi
 
+# STAGE 0.4 -- glew
+NEXT=0.5
+if [[ $STAGE && $STAGE < $NEXT ]] ; then
+	begin_stage glew glew*.tgz
+	export GLEW_DEST=$TARGET
+
+	if make glew.lib && make install ; then
+		echo " * glew compiled and installed successfully"
+	else
+		echo " !!! glew compilation failed"
+		exit 1
+	fi
+
+	complete_stage $NEXT
+fi
+
+
 # STAGE 1.1 -- Boost
 NEXT=1.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
@@ -199,7 +220,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! Boost bootstrap failed"
 		exit 1
 	fi
-	if ./b2 $MAKEOPTS -aq --toolset=gcc cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
+	if ./b2 $MAKEOPTS -aq --toolset=gcc include=$TARGET/include cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
 	$CONFIGOPTS --prefix=$TARGET --layout=system --with-date_time --with-filesystem \
 	--with-iostreams --with-locale --with-program_options --with-python --with-regex \
 	--with-serialization --with-system --with-thread threading=multi link=static \
@@ -260,7 +281,6 @@ fi
 NEXT=1.5
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage png libpng*.tar.xz
-
 	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
 		echo " !!! PNG configuration failed"
 		exit 1
@@ -485,11 +505,11 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	export PATH=${TARGET}/bin/:$PATH
 	export CFLAGS="${LUXRAYS_FLAGS}"
 	export CXXFLAGS="${CFLAGS}"
-	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=${TARGET}/lib/:${TARGET}/lib64/:$LD_LIBRARY_PATH
 	export BOOST_ROOT=$TARGET
 	export BOOST_INCLUDEDIR=$TARGET/include
 	export CMAKE_INCLUDE_PATH=$TARGET/include
-	export CMAKE_LIBRARY_PATH=$TARGET/lib
+	export CMAKE_LIBRARY_PATH="$TARGET/lib:$TARGET/lib64"
 	export CMAKE_PREFIX_PATH=$TARGET
 
 	FLAGS_ESC=`$ROOT/utils/replace "$LUXRAYS_FLAGS"`
@@ -510,7 +530,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	fi
 	sleep $PAUSE
 	echo " * Compiling $LUXRAYS_TARGET"
-	if make $LUXRAYS_TARGET ; then
+	if make -j 4 $LUXRAYS_TARGET ; then
 		echo " * $LUXRAYS_TARGET compiled successfully"
 	else
 		echo " !!! $LUXRAYS_TARGET compilation failed"
@@ -529,11 +549,11 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	export PATH=${TARGET}:${TARGET}/bin/:$PATH
 	export CFLAGS="${LUX_FLAGS} -I${TARGET}/include/LibPNG"
 	export CXXFLAGS="${CFLAGS}"
-	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=${TARGET}/lib/:${TARGET}/lib64/:$LD_LIBRARY_PATH
 	export BOOST_ROOT=$TARGET
 	export BOOST_INCLUDEDIR=$TARGET/include
 	export CMAKE_INCLUDE_PATH=$TARGET/include
-	export CMAKE_LIBRARY_PATH=$TARGET/lib
+	export CMAKE_LIBRARY_PATH="$TARGET/lib:$TARGET/lib64"
 	export CMAKE_PREFIX_PATH=$TARGET
 
 	FLAGS_ESC=`$ROOT/utils/replace "$LUX_FLAGS"`
