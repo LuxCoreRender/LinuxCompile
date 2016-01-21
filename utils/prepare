@@ -19,10 +19,16 @@ function symlink_python() {
 
 function symlink_libstdc() {
     local location=$1
+	directory=`dirname $location`
 
 	echo " * Found at $location"
 	echo " * Updating symlink"
 	ln -vfs $location $TARGET/lib/libstdc++.a
+
+	echo " * Symlinking GOMP"
+	for filename in libgomp.a libgomp.la libgomp.spec ; do
+		ln -vfs $directory/$filename $TARGET/lib/$filename
+	done
 }
 
 function verify_hash() {

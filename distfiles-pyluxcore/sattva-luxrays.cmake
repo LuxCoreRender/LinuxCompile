@@ -1,1 +1,0 @@
-../distfiles/sattva-luxrays.cmake

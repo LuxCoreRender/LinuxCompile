@@ -9,6 +9,7 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Compiled targets tree
 TARGET="${ROOT}/target-64-sse2"
 # Source code distributions of dependency libs
+#DIST="${ROOT}/distfiles"
 DIST="${ROOT}/distfiles"
 
 if [[ $1 ]] ; then
@@ -17,13 +18,13 @@ if [[ $1 ]] ; then
 else
 	echo
 	echo "Syntax: <lux_src_dir> [stage]"
-    ./build | tail -n19
+    ./build | tail -n18
     exit 1
 fi
 
 LUX_TAG="${1%/}"
 STAGE=$2
-TAG="${LUX_TAG}-x86_64-sse2"
+TAG="${LUX_TAG}"
 
 GENERIC_FLAGS="-mtune=generic -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
 LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
