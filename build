@@ -285,8 +285,8 @@ NEXT=1.5
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage png libpng*.tar.xz
 
-	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET \
-	--with-libpng-prefix=lux_ ; then
+	# --with-libpng-prefix=lux_
+	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
 		echo " !!! PNG configuration failed"
 		exit 1
 	fi
