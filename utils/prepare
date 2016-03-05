@@ -26,7 +26,7 @@ function symlink_libstdc() {
 	ln -vfs $location $TARGET/lib/libstdc++.a
 
 	echo " * Symlinking GOMP"
-	for filename in libgomp.a libgomp.la libgomp.spec ; do
+	for filename in libgomp.a libgomp.spec ; do
 		ln -vfs $directory/$filename $TARGET/lib/$filename
 	done
 }
