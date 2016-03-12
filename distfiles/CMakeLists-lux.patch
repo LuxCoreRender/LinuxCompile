@@ -1,15 +1,6 @@
---- CMakeLists.txt.bak	2012-03-29 17:17:17.050619749 +0700
-+++ CMakeLists.txt	2012-03-29 17:20:42.537639061 +0700
-@@ -43,7 +43,7 @@
- 	"${LUX_CMAKE_DIR}/SpecializedConfig"
- )
- option(LUXRAYS_DISABLE_OPENCL "Build without OpenCL support" OFF)
--option(LUX_DOCUMENTATION "Generate project documentation" ON)
-+option(LUX_DOCUMENTATION "Generate project documentation" OFF)
- 
- # Dade - uncomment to obtain verbose building output
- #SET(CMAKE_VERBOSE_MAKEFILE true)
-@@ -307,12 +307,12 @@
+--- CMakeLists.txt.bak	2016-01-13 15:12:53.841554363 +0600
++++ CMakeLists.txt	2016-01-13 15:12:53.842554363 +0600
+@@ -412,12 +412,12 @@
  ELSE(APPLE)
  	# Dade - default compiler options
  	# Removed "-O3" from definitions in order to have CMake Release/Debug options to work
@@ -23,4 +14,4 @@
 +	# SET_SOURCE_FILES_PROPERTIES(accelerators/qbvhaccel.cpp COMPILE_FLAGS "-O1")
  ENDIF(APPLE)
  
- #############################################################################
+ IF(LUX_USE_FREEIMAGE)
