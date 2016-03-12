@@ -25,10 +25,10 @@ function symlink_libstdc() {
 	echo " * Updating symlink"
 	ln -vfs $location $TARGET/lib/libstdc++.a
 
-	echo " * Symlinking GOMP"
-	for filename in libgomp.a libgomp.spec ; do
-		ln -vfs $directory/$filename $TARGET/lib/$filename
-	done
+#	echo " * Symlinking GOMP"
+#	for filename in libgomp.a libgomp.spec ; do
+#		ln -vfs $directory/$filename $TARGET/lib/$filename
+#	done
 }
 
 function verify_hash() {
