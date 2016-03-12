@@ -23,5 +23,5 @@ WORKDIR /tmp/build
 ADD build_luxrender.sh /tmp/build/build_luxrender.sh
 ADD build_luxrender_inline.sh /tmp/build/build_luxrender_inline.sh
 
-CMD /tmp/build/build_luxrender.sh
-
+#CMD /tmp/build/build_luxrender.sh
+CMD /bin/bash
