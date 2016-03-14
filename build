@@ -144,7 +144,11 @@ fi
 if ! $ROOT/utils/prepare "$TARGET" "$DIST" ; then exit 1 ; fi
 
 PYTHON_LIB=`find $TARGET -name 'libpython*'`
-PYTHON_INCLUDE=`find /usr/include -type d -name 'python3*' | sort | tail -n1 | sed s/'\n'//`
+PYTHON_VARIANT=`if $(basename "$PYTHON_LIB" | grep -q 'm') ; then echo 'm' ; fi`
+PYTHON_INCLUDE=`find /usr/include -type d -name "python3*${PYTHON_VARIANT}" | sort | tail -n1 | sed s/'\n'//`
+echo " * Using Python library path: $PYTHON_LIB"
+echo " * Using Python include path: $PYTHON_INCLUDE"
+echo
 
 # STAGE 0.1 -- zlib
 NEXT=0.2
@@ -221,7 +225,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	sleep 1
 	if ! ./bootstrap.sh --with-toolset=$TOOLSET --without-icu --prefix=$TARGET/boost \
 	--with-python=/usr/bin/python${PYVER} \
-	--with-python-root=`python -c "import sys; print(sys.prefix)"` ; then
+	--with-python-root=`python${PYVER} -c "import sys; print(sys.prefix)"` ; then
 		echo " !!! Boost bootstrap failed"
 		exit 1
 	fi
