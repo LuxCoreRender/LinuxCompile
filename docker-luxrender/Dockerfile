@@ -15,13 +15,9 @@ RUN \
   patch xz-utils libtool automake autoconf libx11-dev libgl1-mesa-dev unzip \
   bison flex freeglut3 freeglut3-dev doxygen
   
-RUN apt-get remove -y mercurial python2.7
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.4 1
-
 WORKDIR /tmp/build
 
-ADD build_luxrender.sh /tmp/build/build_luxrender.sh
-ADD build_luxrender_inline.sh /tmp/build/build_luxrender_inline.sh
+ADD build.sh /tmp/build/build.sh
 
 #CMD /tmp/build/build_luxrender.sh
 CMD /bin/bash
