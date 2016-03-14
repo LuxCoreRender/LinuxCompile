@@ -143,6 +143,9 @@ if [[ ! $STAGE ]] ; then
 fi
 if ! $ROOT/utils/prepare "$TARGET" "$DIST" ; then exit 1 ; fi
 
+PYTHON_LIB=`find $TARGET -name 'libpython*'`
+PYTHON_INCLUDE=`find /usr/include -type d -name 'python3*'`
+
 # STAGE 0.1 -- zlib
 NEXT=0.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
@@ -492,7 +495,9 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	cp -vf ${DIST}/sattva-luxrays.cmake cmake/SpecializedConfig/sattva.cmake
 
 	echo " * Configuring $LUXRAYS_TARGET"
-	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL -Wno-dev -D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
+	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL -Wno-dev \
+	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake \
+	-D PYTHON_LIBRARY="$PYTHON_LIB" -D PYTHON_INCLUDE_DIR="$PYTHON_INCLUDE" . ; then
 		echo " !!! $LUXRAYS_TARGET configuration failed"
 		exit 1
 	fi
@@ -560,7 +565,8 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	echo " * Configuring lux"
 	if ! cmake $DISABLE_OPENCL $LUXRAYS_OPTS -Wno-dev \
 	-D LUX_DOCUMENTATION=0 -D LUX_USE_FREEIMAGE=0 \
-	-D LUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake . ; then
+	-D LUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake \
+	-D PYTHON_LIBRARY="$PYTHON_LIB" -D PYTHON_INCLUDE_DIR="$PYTHON_INCLUDE" . ; then
 		echo " !!! Lux configuration failed"
 		exit 1
 	fi
