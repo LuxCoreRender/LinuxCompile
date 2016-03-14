@@ -499,6 +499,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake \
 	-D PYTHON_LIBRARY="$PYTHON_LIB" \
 	-D PYTHON_INCLUDE_DIR="$PYTHON_INCLUDE" \
+	-D PYTHON_INCLUDE_DIR2="$PYTHON_INCLUDE" \
 	-D PYTHON_INCLUDE_DIRS="$PYTHON_INCLUDE" . ; then
 		echo " !!! $LUXRAYS_TARGET configuration failed"
 		exit 1
@@ -570,6 +571,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	-D LUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake \
 	-D PYTHON_LIBRARY="$PYTHON_LIB" \
 	-D PYTHON_INCLUDE_DIR="$PYTHON_INCLUDE" \
+	-D PYTHON_INCLUDE_DIR2="$PYTHON_INCLUDE" \
 	-D PYTHON_INCLUDE_DIRS="$PYTHON_INCLUDE" . ; then
 		echo " !!! Lux configuration failed"
 		exit 1
