@@ -145,7 +145,7 @@ if ! $ROOT/utils/prepare "$TARGET" "$DIST" ; then exit 1 ; fi
 
 PYTHON_LIB=`find $TARGET -name 'libpython*'`
 PYTHON_VARIANT=`if $(basename "$PYTHON_LIB" | grep -q 'm') ; then echo 'm' ; fi`
-PYTHON_INCLUDE=`find /usr/include -type d -name "python3*${PYTHON_VARIANT}" | sort | tail -n1 | sed s/'\n'//`
+PYTHON_INCLUDE=`find /usr/include -type d -name "python3*${PYTHON_VARIANT}" | awk '{ print length($0) " " $0; }' $file | sort -r -n | cut -d ' ' -f 2- | tail -n1 | sed s/'\n'//`
 echo " * Using Python library path: $PYTHON_LIB"
 echo " * Using Python include path: $PYTHON_INCLUDE"
 echo
