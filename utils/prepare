@@ -39,26 +39,25 @@ function verify_hash() {
 }
 
 echo " * Checking distfiles"
-for LINE in `cat $DIST/files` ; do
-	FILE=`echo $LINE | cut -d'@' -f1`
-	HASH=`echo $LINE | cut -d'@' -f2`
-	URL=`echo $LINE | cut -d'@' -f3`
-	if [ ! -f $DIST/$FILE ] ; then
-		echo " * Downloading $FILE"
-		wget -O $DIST/$FILE $URL
-	fi
+FILE=linux_deps.tgz
+HASH=0b9b628b19f57df23698953420cc60fe2a9b8c31
+URL=https://bitbucket.org/luxrender/linux/downloads/linux_deps.tgz
+if [ ! -f $DIST/$FILE ] ; then
+	echo " * Downloading $FILE"
+	wget -O $DIST/$FILE $URL
+fi
+verify_hash $HASH "$DIST/$FILE"
+if [ $? != 0 ] ; then
+	echo " * Resume downloading $FILE"
+	wget -c -O $DIST/$FILE $URL
+
 	verify_hash $HASH "$DIST/$FILE"
 	if [ $? != 0 ] ; then
-		echo " * Resume downloading $FILE"
-		wget -c -O $DIST/$FILE $URL
-
-		verify_hash $HASH "$DIST/$FILE"
-		if [ $? != 0 ] ; then
-			echo " !!! Hash mismatch for $FILE"
-			exit 1
-		fi
+		echo " !!! Hash mismatch for $FILE"
+		exit 1
 	fi
-done
+fi
+tar zxvf $DIST/$FILE -C $DIST
 echo " * Done checking distfiles"
 
 echo " * Checking target tree"
