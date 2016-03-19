@@ -10,6 +10,8 @@ function begin_stage() {
 
 	if echo $distfile_mask | grep -q '\.tar\.gz$' ; then
 		tar -xzf ${DIST}/$distfile_mask -C $WORK
+	elif echo $distfile_mask | grep -q '\.tgz$' ; then
+		tar -xzf ${DIST}/$distfile_mask -C $WORK
 	elif echo $distfile_mask | grep -q '\.tar\.bz2$' ; then
 		tar -xjf ${DIST}/$distfile_mask -C $WORK
 	elif echo $distfile_mask | grep -q '\.tar\.xz$' ; then
@@ -41,6 +43,7 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 0.1 - zlib"
 	echo "	Stage 0.2 - bzip2"
 	echo "	Stage 0.3 - lzma"
+	echo "	Stage 0.4 - glew"
 	echo "	Stage 1.1 - boost"
 	echo "	Stage 1.2 - jpeg"
 	echo "	Stage 1.3 - tiff"
@@ -104,8 +107,9 @@ export CHOST="$8"
 export CBUILD=$CHOST
 export LDFLAGS="-L${TARGET}/lib -static-libgcc -static-libstdc++"
 CONFIGOPTS="--build=$CBUILD --host=$CHOST"
-export CFLAGS="${GENERIC_FLAGS}"
-export CXXFLAGS="${CFLAGS}"
+export CFLAGS="${GENERIC_FLAGS} -I$TARGET/include"
+export CXXFLAGS="${CFLAGS} -I$TARGET/include"
+export CPPFLAGS="$CPPFLAGS -I$TARGET/include"
 export MAKEOPTS="-j"$(( `grep processor /proc/cpuinfo | wc -l` + 1))
 export TMP="$WORK"
 export TEMP="$WORK"
@@ -213,6 +217,23 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	complete_stage $NEXT
 fi
+
+# STAGE 0.4 -- glew
+NEXT=0.5
+if [[ $STAGE && $STAGE < $NEXT ]] ; then
+	begin_stage glew glew*.tgz
+	export GLEW_DEST=$TARGET
+
+	if make glew.lib && make install ; then
+		echo " * glew compiled and installed successfully"
+	else
+		echo " !!! glew compilation failed"
+		exit 1
+	fi
+
+	complete_stage $NEXT
+fi
+
 
 # STAGE 1.1 -- Boost
 NEXT=1.2
@@ -483,7 +504,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	export CXXFLAGS="${CFLAGS}"
 	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
 	export CMAKE_INCLUDE_PATH=$TARGET/include
-	export CMAKE_LIBRARY_PATH=$TARGET/lib
+	export CMAKE_LIBRARY_PATH="$TARGET/lib:$TARGET/lib64"
 	export CMAKE_PREFIX_PATH=$TARGET
 	export BOOST_ROOT=$TARGET
 	export BOOST_INCLUDEDIR=$TARGET/include
@@ -541,7 +562,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	export CXXFLAGS="${CFLAGS}"
 	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
 	export CMAKE_INCLUDE_PATH=$TARGET/include
-	export CMAKE_LIBRARY_PATH=$TARGET/lib
+	export CMAKE_LIBRARY_PATH="$TARGET/lib:$TARGET/lib64"
 	export CMAKE_PREFIX_PATH=$TARGET
 	export BOOST_SEARCH_PATH=$TARGET
 	export BOOST_ROOT=$TARGET
