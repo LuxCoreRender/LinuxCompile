@@ -1,0 +1,29 @@
+#!/bin/bash
+
+cd /root/luxbuild
+
+if [[ ! -d $1 ]] ; then
+	echo "Please provide Lux snapshot dir"
+	echo "Usage: <snapshot> <target>"
+fi
+
+cd ~/luxbuild
+
+if [[ $2 == 1 ]] ; then
+	echo " * Removing compiled distributions"
+	sleep 3
+	rm -vfr target-*/"$1"
+	exit 0
+elif [[ $2 == 2 ]] ; then
+	echo " * Removing distributions and sources"
+	sleep 3
+	rm -vfr target-*/"$1"
+	rm -fr $1
+	exit 0
+fi
+
+echo "Targets:"
+echo "	1 - compiled distributions"
+echo "	2 - distributions and sources"
+echo
+exit 1

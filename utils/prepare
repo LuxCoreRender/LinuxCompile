@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# target dir
+TARGET=$1
+# distfiles dir
+DIST=$2
+
+ARCH="x86_64"
+if echo $TARGET | grep -q '\-32' ; then ARCH="i686" ; fi
+
+function symlink_python() {
+    local pylib=$1
+    local location=$2
+
+    echo " * Found at $location"
+    echo " * Updating symlink"
+    ln -vfs $location $TARGET/lib/$pylib
+}
+
+function symlink_libstdc() {
+    local location=$1
+	directory=`dirname $location`
+
+	echo " * Found at $location"
+	echo " * Updating symlink"
+	ln -vfs $location $TARGET/lib/libstdc++.a
+
+#	echo " * Symlinking GOMP"
+#	for filename in libgomp.a libgomp.spec ; do
+#		ln -vfs $directory/$filename $TARGET/lib/$filename
+#	done
+}
+
+function verify_hash() {
+	local hash=$1
+	local filepath=$2
+	echo "$hash $filepath" | sha1sum --status -c -
+	return $?
+}
+
+echo " * Checking distfiles"
+FILE=linux_deps.tgz
+HASH=0b9b628b19f57df23698953420cc60fe2a9b8c31
+URL=https://bitbucket.org/luxrender/linux/downloads/linux_deps.tgz
+if [ ! -f $DIST/$FILE ] ; then
+	echo " * Downloading $FILE"
+	wget -O $DIST/$FILE $URL
+fi
+verify_hash $HASH "$DIST/$FILE"
+if [ $? != 0 ] ; then
+	echo " * Resume downloading $FILE"
+	wget -c -O $DIST/$FILE $URL
+
+	verify_hash $HASH "$DIST/$FILE"
+	if [ $? != 0 ] ; then
+		echo " !!! Hash mismatch for $FILE"
+		exit 1
+	fi
+fi
+tar zxvf $DIST/$FILE -C $DIST
+echo " * Done checking distfiles"
+
+echo " * Checking target tree"
+if [[ ! -d $TARGET ]] ; then
+	echo " * Target tree is absent, populating"
+	mkdir -pv $TARGET/{bin,include/GL,lib,share} 2>/dev/null
+	cp -vf /usr/lib/libGLEW*.a $TARGET/lib
+	cp -vf /usr/include/GL/*gl*ew.h $TARGET/include/GL
+	echo " * Done creating target tree"
+else
+	echo " * Target tree exists"
+fi
+
+echo " * Checking libstdc++"
+if [[ ! -e $TARGET/lib/libstdc++.a ]] ; then
+	echo " * Library symlink is missing, attempting to figure out the proper location"
+	GCCVER=`gcc -dumpversion`
+	GCCVERMAJOR=`echo $GCCVER | cut -d'.' -f1-2`
+	if STDCLIBPATH=/usr/lib/gcc/${ARCH}-pc-linux-gnu/$GCCVER/libstdc++.a && [[ -e $STDCLIBPATH ]] ; then
+		symlink_libstdc $STDCLIBPATH
+	elif STDCLIBPATH=/usr/lib/gcc/${ARCH}-linux-gnu/$GCCVERMAJOR/libstdc++.a && [[ -e $STDCLIBPATH ]] ; then
+		symlink_libstdc $STDCLIBPATH
+	else
+        echo " !!! Unable to find libstdc++.a at known locations."
+        echo " !!! You have to find the library manually and symlink"
+        echo " !!! it to the following path:"
+		echo " !!! $TARGET/lib/libstdc++.a"
+		exit 1
+	fi
+fi
+echo " * Done checking libstdc++"
+
+echo " * Checking python"
+PYVER=`python3 --version 2>&1`
+if [ `echo $PYVER | cut -d' ' -f2 | cut -d'.' -f1` != '3' ] ; then
+    echo " !!! Python major version '3' is required"
+	exit 1
+fi
+PYVER=`echo $PYVER | cut -d' ' -f2 | cut -d'.' -f'1-2'`
+PYLIB=libpython"$PYVER".a
+PYLIBm=libpython"$PYVER"m.a
+if echo $TARGET | grep -q '\-64' ; then EXT="64" ; fi
+if [[ ! -e $TARGET/lib/$PYLIB ]] ; then
+	echo " * Library symlink is missing, attempting to figure out the proper location"
+    if PYLIBPATH=/usr/lib${EXT}/$PYLIB && [[ -e $PYLIBPATH ]] ; then
+    	symlink_python $PYLIB $PYLIBPATH
+    elif PYLIBPATH=/usr/lib/${ARCH}-linux-gnu/$PYLIBm && [[ -e $PYLIBPATH ]] ; then
+    	symlink_python $PYLIB $PYLIBPATH
+    else
+        echo " !!! Unable to find $PYLIB or $PYLIBm at known"
+        echo " !!! locations. You have to find the library manually and"
+        echo " !!! symlink it to the following path:"
+        echo " !!! $TARGET/lib/$PYLIB"
+        exit 1
+    fi
+fi
+echo " * Done checking python"
+
+# updating target link
+#ln -fs $TARGET ../target
+
+echo " * Prechecks completed"
+echo
+sleep 1

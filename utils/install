@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [[ ! $3 ]] ; then
+	echo " * Unable to install"
+	exit 1
+fi
+
+TARGET=$1
+LUX_TAG=$2
+TAG=$3
+
+sleep 5
+echo
+echo " * Installing tag $TAG"
+rm -fr $TARGET/$LUX_TAG/$TAG* 2>/dev/null
+mkdir $TARGET/$LUX_TAG/$TAG 2>/dev/null
+cd $TARGET/$LUX_TAG
+mv {lux,pylux,liblux,slg}* $TAG
+tar -cvjf ${TAG}.tar.bz2 $TAG
+rm -fr $TAG
+echo
