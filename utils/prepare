@@ -64,8 +64,6 @@ echo " * Checking target tree"
 if [[ ! -d $TARGET ]] ; then
 	echo " * Target tree is absent, populating"
 	mkdir -pv $TARGET/{bin,include/GL,lib,share} 2>/dev/null
-	cp -vf /usr/lib/libGLEW*.a $TARGET/lib
-	cp -vf /usr/include/GL/*gl*ew.h $TARGET/include/GL
 	echo " * Done creating target tree"
 else
 	echo " * Target tree exists"

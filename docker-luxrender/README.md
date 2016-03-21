@@ -17,6 +17,6 @@ Build the docker image we'll be using to build Luxrender with:
 
 Then invoke it:
 
-    docker run -it -v ${PWD}:/tmp/luxrender-linux-build luxrender/linux-build
+    docker run -it -v ${PWD}:/tmp/linux-build luxrender/linux-build
 
 After the build completes, the (static) binaries will be available in the `luxbuild` folder
