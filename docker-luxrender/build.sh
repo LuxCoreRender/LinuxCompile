@@ -1,17 +1,25 @@
 #!/bin/bash
 
 cd /tmp
-echo " *** Cloning https://bitbucket.org/luxrender/linux ***"
-hg clone https://bitbucket.org/luxrender/linux linux
+echo " *** Downloading https://bitbucket.org/luxrender/linux ***"
+wget https://bitbucket.org/luxrender/linux/get/docker_integration.tar.gz
+tar zxvf docker_integration.tar.gz
+rm docker_integration.tar.gz
+mv luxrender-linux-* linux
 cd linux
-hg update docker_integration
 
-# Clone Lux and LuxRays repositories
-echo " *** Cloning https://bitbucket.org/luxrender/lux ***"
-hg clone https://bitbucket.org/luxrender/lux lux
+echo " *** Downloading https://bitbucket.org/luxrender/lux ***"
+wget https://bitbucket.org/luxrender/lux/get/default.tar.gz
+tar zxvf default.tar.gz
+rm default.tar.gz
+mv luxrender-lux-* lux
 cd lux
-echo " *** Cloning https://bitbucket.org/luxrender/luxrays ***"
-hg clone https://bitbucket.org/luxrender/luxrays luxrays
+
+echo " *** Downloading https://bitbucket.org/luxrender/luxrays ***"
+wget https://bitbucket.org/luxrender/luxrays/get/default.tar.gz
+tar zxvf default.tar.gz
+rm default.tar.gz
+mv luxrender-luxrays-* luxrays
 cd ..
 
 # Build everything

@@ -240,6 +240,7 @@ NEXT=1.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage boost boost*.tar.bz2
 
+	CPATH=$PWD/target-64-sse2/include
 	PYVER=`python3 --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
 	TOOLSET=`if [[ $CLANG ]] ; then echo clang ; else echo gcc ; fi`
 	echo " * Compiling boost for python-${PYVER}"
