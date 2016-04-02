@@ -460,7 +460,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
 	-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
 	-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
-	-I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
+	-I${TARGET}/include/freetype2 -I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
 		echo " !!! Qt configuration failed"
 		exit 1
 	fi
