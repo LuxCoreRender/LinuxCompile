@@ -12,11 +12,10 @@ RUN \
   patch xz-utils libtool automake autoconf libx11-dev libxrandr-dev libxinerama-dev \
   libxcursor-dev libgl1-mesa-dev libgtk-3-dev unzip \
   bison flex freeglut3 freeglut3-dev libglew-dev doxygen python3.4 libpython3.4-dev \
-  pkg-config
-
+  pkg-config libbz2-dev
 
 WORKDIR /tmp
 ADD build.sh /tmp/build.sh
 
-#CMD /tmp/build.sh
-CMD /bin/bash
+CMD /tmp/build.sh
+#CMD /bin/bash

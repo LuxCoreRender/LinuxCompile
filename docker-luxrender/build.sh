@@ -24,3 +24,5 @@ cd ..
 
 # Build everything
 ./build-64-sse2 lux
+
+cp target-64-sse2/lux/lux.tar.bz2 /tmp/linux-build
