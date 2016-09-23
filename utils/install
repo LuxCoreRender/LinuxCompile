@@ -15,7 +15,7 @@ echo " * Installing tag $TAG"
 rm -fr $TARGET/$LUX_TAG/$TAG* 2>/dev/null
 mkdir $TARGET/$LUX_TAG/$TAG 2>/dev/null
 cd $TARGET/$LUX_TAG
-mv {lux,pylux,liblux,slg}* $TAG
+mv {lux,pylux,liblux,slg,libembree,libtbb}* $TAG
 tar -cvjf ${TAG}.tar.bz2 $TAG
 rm -fr $TAG
 echo
