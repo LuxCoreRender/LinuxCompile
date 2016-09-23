@@ -457,7 +457,7 @@ fi
 # STAGE 4.1 -- Embree
 NEXT=4.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage Embree embree-bin-*.zip
+	begin_stage Embree embree_bvh_build-2.8.0.x86_64.linux.tar.gz
 
 	cp -v ${DIST}/embree-install.sh .
 
@@ -591,6 +591,8 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	mkdir ${TARGET}/$LUX_TAG 2>/dev/null
 	cp -vf {luxconsole,luxrender,luxmerger,luxvr,pylux.so,liblux.so} ${TARGET}/$LUX_TAG
+	cp -vf ${TARGET}/lib/libembree.so.2 ${TARGET}/$LUX_TAG
+	cp -vf ${TARGET}/lib/libtbb.so.2 ${TARGET}/$LUX_TAG
 	cd $WORK/luxrays
 	cp -vf bin/slg? bin/luxcoreui lib/*.so ${TARGET}/$LUX_TAG
 	sleep $PAUSE
