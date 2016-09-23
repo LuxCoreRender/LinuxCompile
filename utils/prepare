@@ -40,7 +40,7 @@ function verify_hash() {
 
 echo " * Checking distfiles"
 FILE=linux_deps.tgz
-HASH=0b9b628b19f57df23698953420cc60fe2a9b8c31
+HASH=156e61b921f50f2ddf3b9fb34b81cc396e8f49a7
 URL=https://bitbucket.org/luxrender/linux/downloads/linux_deps.tgz
 if [ ! -f $DIST/$FILE ] ; then
 	echo " * Downloading $FILE"
