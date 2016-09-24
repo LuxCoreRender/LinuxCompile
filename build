@@ -457,7 +457,7 @@ fi
 # STAGE 4.1 -- Embree
 NEXT=4.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage Embree embree_bvh_build-2.8.0.x86_64.linux.tar.xz
+	begin_stage Embree embree_bvh_build-*.tar.xz
 
 	cp -v ${DIST}/embree-install.sh .
 
