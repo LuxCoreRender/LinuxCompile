@@ -8,4 +8,4 @@ mkdir -p $LIBRARY_INSTALL_DIR
 
 cp -vr include/embree2 $INCLUDE_INSTALL_DIR
 
-cp -vr lib/x64/lib* $LIBRARY_INSTALL_DIR
+cp -vr lib/lib* $LIBRARY_INSTALL_DIR
