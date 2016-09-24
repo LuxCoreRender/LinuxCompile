@@ -565,6 +565,19 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		fi
 	fi
 
+# Luxrender gui improvement ( WIP )
+	if [[ ! -e qtgui/main.cpp.bak ]] ; then
+		echo " * Preparing ui patch"
+		cp -v qtgui/main.cpp qtgui/main.cpp.bak
+		cp -v ${DIST}/lux_ui_theme.patch lux_ui_theme.patch
+		if patch -p1 < lux_ui_theme.patch ; then
+			echo
+		else
+			echo " !!! Patching gui failed"
+			exit 1
+		fi
+	fi
+
 	echo " * Preparing lux config"
 	cat $DIST/sattva-lux.cmake | perl -p -e "s/__MY_COMPILER_FLAGS__/${FLAGS_ESC}/" > cmake/SpecializedConfig/sattva.cmake
 	sleep $PAUSE
