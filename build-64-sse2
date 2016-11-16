@@ -26,7 +26,7 @@ LUX_TAG="${1%/}"
 STAGE=$2
 TAG="${LUX_TAG}"
 
-GENERIC_FLAGS="-mtune=generic -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
+GENERIC_FLAGS="-mtune=generic -std=c++11 -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
 LUX_FLAGS="-mtune=generic -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
           -mfpmath=sse -fvisibility=hidden -fvisibility-inlines-hidden \
           -ftree-vectorize -fno-math-errno -fno-signed-zeros -fno-trapping-math \
