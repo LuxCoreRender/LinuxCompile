@@ -76,9 +76,18 @@ if echo $LUX_TAG | grep -iq '^luxmark-' ; then
 	IS_LUXMARK=1
 fi
 
+# enable LuxCore DLL building if sources dir doesn't contains "-dll" postfix
+# and it's not a LuxMark source tree
+if echo $LUX_TAG | grep -viq '\-dll' && [[ ! $IS_LUXMARK ]] ; then
+	echo " * LuxCore static enabled"
+else
+	echo " * LuxCore DLL enabled"
+	BUILD_LUXCORE_DLL="-D BUILD_LUXCORE_DLL=1"
+fi
+
 # disabling OpenCL support if sources dir doesn't contains "-opencl" postfix
 # and it's not a LuxMark source tree
-if echo $LUX_TAG | grep -viq '\-opencl$' && [[ ! $IS_LUXMARK ]] ; then
+if echo $LUX_TAG | grep -viq '\-opencl' && [[ ! $IS_LUXMARK ]] ; then
 	echo " * OpenCL disabled"
 	DISABLE_OPENCL="-D LUXRAYS_DISABLE_OPENCL=1"
 else
@@ -472,7 +481,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	complete_stage $NEXT
 fi
 
-# STAGE 5 -- LuxRays/SLG/SLGRendererLib
+# STAGE 5 -- LuxRays/LuxCore
 NEXT=6
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	echo -ne "\033]0;LuxRays stage\007"
@@ -499,7 +508,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	cp -vf ${DIST}/sattva-luxrays.cmake cmake/SpecializedConfig/sattva.cmake
 
 	echo " * Configuring $LUXRAYS_TARGET"
-	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL -Wno-dev \
+	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL $BUILD_LUXCORE_DLL -Wno-dev \
 	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake \
 	-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
 	-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
@@ -511,7 +520,11 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	sleep $PAUSE
 	echo " * Compiling $LUXRAYS_TARGET"
 #	if make $MAKEOPTS $LUXRAYS_TARGET ; then
-    if cmake --build . --target pyluxcore -- $MAKEOPTS && cmake --build . --target luxcoreui -- $MAKEOPTS ; then
+    if cmake --build . --target pyluxcore -- $MAKEOPTS && \
+	cmake --build . --target luxcoreui -- $MAKEOPTS && \
+	cmake --build . --target luxcoreconsole -- $MAKEOPTS && \
+	cmake --build . --target luxcoredemo -- $MAKEOPTS && \
+	cmake --build . --target luxcorescenedemo -- $MAKEOPTS ; then
         echo " * $LUXRAYS_TARGET compiled successfully"
     else
         echo " !!! $LUXRAYS_TARGET compilation failed"
