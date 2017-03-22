@@ -52,7 +52,7 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 3   - fftw"
 	echo "	Stage 4   - Qt"
 	echo "	Stage 4.1 - Embree"
-	echo "	Stage 5   - luxrays/slg"
+	echo "	Stage 5   - luxrays/luxcore"
 	echo "	Stage 6   - luxrender/luxmark"
 	echo
 	exit 1
@@ -105,7 +105,7 @@ fi
 # build flags
 GENERIC_FLAGS="$6"
 LUXRAYS_FLAGS=`echo $7 | sed s/'-fvisibility=hidden'//`" -pthread -lrt"
-LUXRAYS_OPTS="-D SLG_INCLUDE_DIRS='${WORK}/luxrays/samples/smallluxgpu' -D SLG_LIBRARY='${WORK}/luxrays/lib/libsmallluxgpu.a'"
+LUXRAYS_OPTS="-D SLG_LIBRARY='${WORK}/luxrays/lib/libsmallluxgpu.a'"
 LUX_FLAGS="$7 -I${TARGET}/include -L${TARGET}/lib -pthread -lrt"
 
 # platform specs
@@ -162,26 +162,26 @@ echo
 # STAGE 0.1 -- zlib
 NEXT=0.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage zlib zlib*.tar.gz
+    begin_stage zlib zlib*.tar.gz
 
     if echo $TARGET | grep -q '\-64' ; then
         ZLIB_PLATFORM="--64"
     else
         ZLIB_PLATFORM=""
     fi
-	if ! ./configure --static $ZLIB_PLATFORM --prefix=$TARGET ; then
-		echo " !!! zlib configuration failed"
-		exit 1
-	fi
-	sleep $PAUSE
-	if make $MAKEOPTS && make install ; then
-		echo " * zlib compiled and installed successfully"
-	else
-		echo " !!! zlib compilation failed"
-		exit 1
-	fi
+    if ! ./configure --static $ZLIB_PLATFORM --prefix=$TARGET ; then
+	echo " !!! zlib configuration failed"
+	exit 1
+    fi
+    sleep $PAUSE
+    if make $MAKEOPTS && make install ; then
+	echo " * zlib compiled and installed successfully"
+    else
+	echo " !!! zlib compilation failed"
+	exit 1
+    fi
 
-	complete_stage $NEXT
+    complete_stage $NEXT
 fi
 
 # STAGE 0.2 -- bzip2
@@ -520,26 +520,29 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	sleep $PAUSE
 	echo " * Compiling $LUXRAYS_TARGET"
 #	if make $MAKEOPTS $LUXRAYS_TARGET ; then
-    if cmake --build . --target pyluxcore -- $MAKEOPTS && \
-	cmake --build . --target luxcoreui -- $MAKEOPTS && \
-	cmake --build . --target luxcoreconsole -- $MAKEOPTS && \
-	cmake --build . --target luxcoredemo -- $MAKEOPTS && \
-	cmake --build . --target luxcorescenedemo -- $MAKEOPTS ; then
-        echo " * $LUXRAYS_TARGET compiled successfully"
-    else
-        echo " !!! $LUXRAYS_TARGET compilation failed"
-        exit 1
+	if cmake --build . --target pyluxcore -- $MAKEOPTS && \
+	    cmake --build . --target luxcoreui -- $MAKEOPTS && \
+	    cmake --build . --target luxcoreconsole -- $MAKEOPTS && \
+	    cmake --build . --target luxcoredemo -- $MAKEOPTS && \
+	    cmake --build . --target luxcorescenedemo -- $MAKEOPTS ; then
+            echo " * $LUXRAYS_TARGET compiled successfully"
+	else
+            echo " !!! $LUXRAYS_TARGET compilation failed"
+            exit 1
 	fi
+
+	complete_stage $NEXT
+
 	sleep $PAUSE
 	cd $ROOT
 
 	if echo $LUX_TAG | grep -iq 'pyluxcore' ; then
-		mkdir ${TARGET}/$LUX_TAG 2>/dev/null
-		cd $WORK/luxrays
-		cp -vf lib/*.so ${TARGET}/$LUX_TAG
-		sleep $PAUSE
-		cd $ROOT
-		exit 0
+	    mkdir ${TARGET}/$LUX_TAG 2>/dev/null
+	    cd $WORK/luxrays
+	    cp -vf lib/*.so ${TARGET}/$LUX_TAG
+	    sleep $PAUSE
+	    cd $ROOT
+	    exit 0
 	fi
 fi
 
@@ -620,7 +623,10 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	cp -vf ${TARGET}/lib/libembree.so.2 ${TARGET}/$LUX_TAG
 	cp -vf ${TARGET}/lib/libtbb.so.2 ${TARGET}/$LUX_TAG
 	cd $WORK/luxrays
-	cp -vf bin/slg? bin/luxcoreui lib/*.so ${TARGET}/$LUX_TAG
+	cp -vf bin/luxcoreui bin/luxcoreconsole bin/luxcoredemo bin/luxcorescenedemo lib/*.so ${TARGET}/$LUX_TAG
+
+	complete_stage $NEXT
+
 	sleep $PAUSE
 	cd $ROOT
 	exit 0
