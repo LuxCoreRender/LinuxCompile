@@ -52,8 +52,8 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 3   - fftw"
 	echo "	Stage 4   - Qt"
 	echo "	Stage 4.1 - Embree"
-	echo "	Stage 5   - luxrays/luxcore"
-	echo "	Stage 6   - luxrender/luxmark"
+	echo "	Stage 5   - luxcore"
+	echo "	Stage 6   - luxmark"
 	echo
 	exit 1
 fi
@@ -66,28 +66,24 @@ DIST="$4"
 LUX_TAG="$5"
 PAUSE=5
 
-if [[ ! -d "$1/$5" ]] ; then
+if [[ ! -d "$1" ]] ; then
 	echo
 	echo "Lux src path is incorrect"
 	exit 1
 fi
 
-if echo $LUX_TAG | grep -iq '^luxmark-' ; then
-	IS_LUXMARK=1
-fi
-
 # enable LuxCore DLL building if sources dir doesn't contains "-dll" postfix
 # and it's not a LuxMark source tree
-if echo $LUX_TAG | grep -viq '\-dll' && [[ ! $IS_LUXMARK ]] ; then
+if echo $LUX_TAG | grep -iq 'dll' ; then
 	echo " * LuxCore static enabled"
 else
 	echo " * LuxCore DLL enabled"
 	BUILD_LUXCORE_DLL="-D BUILD_LUXCORE_DLL=1"
 fi
 
-# disabling OpenCL support if sources dir doesn't contains "-opencl" postfix
+# disabling OpenCL support if sources dir doesn't contains "opencl"
 # and it's not a LuxMark source tree
-if echo $LUX_TAG | grep -viq '\-opencl' && [[ ! $IS_LUXMARK ]] ; then
+if echo $LUX_TAG | grep -iq 'opencl' ; then
 	echo " * OpenCL disabled"
 	DISABLE_OPENCL="-D LUXRAYS_DISABLE_OPENCL=1"
 else
@@ -105,7 +101,7 @@ fi
 # build flags
 GENERIC_FLAGS="$6"
 LUXRAYS_FLAGS=`echo $7 | sed s/'-fvisibility=hidden'//`" -pthread -lrt"
-LUXRAYS_OPTS="-D SLG_LIBRARY='${WORK}/luxrays/lib/libsmallluxgpu.a'"
+LUXRAYS_OPTS="-D SLG_LIBRARY='${WORK}/lib/libsmallluxgpu.a'"
 LUX_FLAGS="$7 -I${TARGET}/include -L${TARGET}/lib -pthread -lrt"
 
 # platform specs
@@ -481,10 +477,10 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	complete_stage $NEXT
 fi
 
-# STAGE 5 -- LuxRays/LuxCore
+# STAGE 5 -- LuxCore
 NEXT=6
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	echo -ne "\033]0;LuxRays stage\007"
+	echo -ne "\033]0;LuxCore stage\007"
 
 	export HOME=${TARGET}
 	export PATH=${TARGET}/bin/:$PATH
@@ -501,15 +497,15 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	FLAGS_ESC=`$ROOT/utils/replace "$LUXRAYS_FLAGS"`
 	TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
 
-	echo " * Copying luxrays sources"
+	echo " * Copying luxcore sources"
 	rm -rf $WORK/*
-	cp -r $ROOT/$LUX_TAG/luxrays/ $WORK
-	cd $WORK/luxrays
-	cp -vf ${DIST}/sattva-luxrays.cmake cmake/SpecializedConfig/sattva.cmake
+	cp -r $ROOT/$LUX_TAG $WORK/luxcore
+	cd $WORK/luxcore
+	cp -vf ${DIST}/luxcore.cmake cmake/SpecializedConfig/luxcore.cmake
 
 	echo " * Configuring $LUXRAYS_TARGET"
 	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL $BUILD_LUXCORE_DLL -Wno-dev \
-	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake \
+	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/luxcore.cmake \
 	-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
 	-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
 	-D PYTHON_INCLUDE_DIR2:PATH="$PYTHON_INCLUDE" \
@@ -536,98 +532,15 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	sleep $PAUSE
 	cd $ROOT
 
+    mkdir ${TARGET}/$LUX_TAG 2>/dev/null
+    cd $WORK/luxcore
 	if echo $LUX_TAG | grep -iq 'pyluxcore' ; then
-	    mkdir ${TARGET}/$LUX_TAG 2>/dev/null
-	    cd $WORK/luxrays
 	    cp -vf lib/*.so ${TARGET}/$LUX_TAG
+
 	    sleep $PAUSE
 	    cd $ROOT
 	    exit 0
-	fi
-fi
-
-# STAGE 6 -- LuxRender
-NEXT=7
-if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	echo -ne "\033]0;LuxRender stage\007"
-
-	export HOME=${TARGET}
-	export PATH=${TARGET}:${TARGET}/bin/:$PATH
-	export CFLAGS="${LUX_FLAGS} -I${TARGET}/include/LibPNG"
-	export CXXFLAGS="${CFLAGS}"
-	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
-	export CMAKE_INCLUDE_PATH=$TARGET/include
-	export CMAKE_LIBRARY_PATH=$TARGET/lib
-	export CMAKE_PREFIX_PATH=$TARGET
-	export BOOST_SEARCH_PATH=$TARGET
-	export BOOST_ROOT=$TARGET
-	export BOOST_INCLUDEDIR=$TARGET/include
-
-	FLAGS_ESC=`$ROOT/utils/replace "$LUX_FLAGS"`
-	TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
-
-	echo " * Copying lux sources"
-	rm -rf $WORK/$LUX_TAG
-	cp -Lr $ROOT/$LUX_TAG/ $WORK
-	cd $WORK/$LUX_TAG
-	if [[ ! -e CMakeLists.txt.bak ]] && [[ ! $IS_LUXMARK ]] ; then
-		echo " * Preparing CMakeLists.txt"
-		cp -v CMakeLists.txt CMakeLists.txt.bak
-		if patch CMakeLists.txt ${DIST}/CMakeLists-lux.patch ; then
-			echo
-		else
-			echo " !!! Patching failed"
-			exit 1
-		fi
-	fi
-
-# Luxrender gui improvement ( WIP )
-	if [[ ! -e qtgui/main.cpp.bak ]] ; then
-		echo " * Preparing ui patch"
-		cp -v qtgui/main.cpp qtgui/main.cpp.bak
-		cp -v ${DIST}/lux_ui_theme.patch lux_ui_theme.patch
-		if patch -p1 < lux_ui_theme.patch ; then
-			echo
-		else
-			echo " !!! Patching gui failed"
-			exit 1
-		fi
-	fi
-
-	echo " * Preparing lux config"
-	cat $DIST/sattva-lux.cmake | perl -p -e "s/__MY_COMPILER_FLAGS__/${FLAGS_ESC}/" > cmake/SpecializedConfig/sattva.cmake
-	sleep $PAUSE
-
-	echo " * Configuring lux"
-	if ! cmake $DISABLE_OPENCL $LUXRAYS_OPTS -Wno-dev \
-	-D LUX_DOCUMENTATION=0 -D LUX_USE_FREEIMAGE=0 \
-	-D LUX_CUSTOM_CONFIG=cmake/SpecializedConfig/sattva.cmake \
-	-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
-	-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
-	-D PYTHON_INCLUDE_DIR2:PATH="$PYTHON_INCLUDE" \
-	-D PYTHON_INCLUDE_DIRS:PATH="$PYTHON_INCLUDE" . ; then
-		echo " !!! Lux configuration failed"
-		exit 1
-	fi
-	sleep $PAUSE
-	echo " * Compiling lux"
-	if ! make $MAKEOPTS ; then
-		echo " !!! Lux compilation failed"
-		exit 1
 	else
-		echo " * Lux compiled successfully"
+		cp -vf bin/luxcoreui bin/luxcoreconsole bin/luxcoredemo bin/luxcorescenedemo lib/*.so ${TARGET}/$LUX_TAG
 	fi
-
-	mkdir ${TARGET}/$LUX_TAG 2>/dev/null
-	cp -vf {luxconsole,luxrender,luxmerger,luxvr,pylux.so,liblux.so} ${TARGET}/$LUX_TAG
-	cp -vf ${TARGET}/lib/libembree.so.2 ${TARGET}/$LUX_TAG
-	cp -vf ${TARGET}/lib/libtbb.so.2 ${TARGET}/$LUX_TAG
-	cd $WORK/luxrays
-	cp -vf bin/luxcoreui bin/luxcoreconsole bin/luxcoredemo bin/luxcorescenedemo lib/*.so ${TARGET}/$LUX_TAG
-
-	complete_stage $NEXT
-
-	sleep $PAUSE
-	cd $ROOT
-	exit 0
 fi

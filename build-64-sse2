@@ -9,7 +9,6 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Compiled targets tree
 TARGET="${ROOT}/target-64-sse2"
 # Source code distributions of dependency libs
-#DIST="${ROOT}/distfiles"
 DIST="${ROOT}/distfiles"
 
 if [[ $1 ]] ; then

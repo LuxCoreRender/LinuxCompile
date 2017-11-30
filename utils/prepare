@@ -41,7 +41,7 @@ function verify_hash() {
 echo " * Checking distfiles"
 FILE=linux_deps.tgz
 HASH=2524cec96c54897bfc0a4fd60fbfde618a617706
-URL=https://bitbucket.org/luxrender/linux/downloads/linux_deps.tar.gz
+URL=https://github.com/LuxCoreRender/LinuxCompileDeps/releases/download/luxcorerender_v2.0beta1/linux_deps.tar.gz
 if [ ! -f $DIST/$FILE ] ; then
 	echo " * Downloading $FILE"
 	wget -O $DIST/$FILE $URL
@@ -63,9 +63,7 @@ echo " * Done checking distfiles"
 echo " * Checking target tree"
 if [[ ! -d $TARGET ]] ; then
 	echo " * Target tree is absent, populating"
-	mkdir -pv $TARGET/{bin,include/GL,lib,share} 2>/dev/null
-	cp -vf /usr/lib/libGLEW*.a $TARGET/lib
-	cp -vf /usr/include/GL/*gl*ew.h $TARGET/include/GL
+	mkdir -pv $TARGET/{bin,include,lib,share} 2>/dev/null
 	echo " * Done creating target tree"
 else
 	echo " * Target tree exists"
