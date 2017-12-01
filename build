@@ -379,11 +379,14 @@ NEXT=2.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage openimageio oiio*.tar.gz
 
-	echo " * Patching plugin.cpp"
-	cp -vf $DIST/oiio-1.3.13-plugin.cpp src/libutil/plugin.cpp
+	echo " * Patching OpenImageIO"
+	cp -vf $DIST/oiio-1.3.14-plugin.cpp src/libutil/plugin.cpp
+	cp -vf $DIST/oiio-1.3.14-CMakeLists.txt CMakeLists.txt
+	cp -vf $DIST/oiio-1.3.14-externalpackages.cmake src/cmake/externalpackages.cmake
 	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET VERBOSE=0 \
 	EMBEDPLUGINS=1 USE_OPENGL=0 USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
-	USE_PYTHON=0 BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 \
+	USE_FIELD3D=0 USE_OCIO=0 USE_OPENCV=0 USE_PYTHON=0 \
+	BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 \
 	STOP_ON_WARNING=0 ; then
 		echo " * openimageio compiled successfully"
 	else
