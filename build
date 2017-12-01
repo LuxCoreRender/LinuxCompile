@@ -497,15 +497,11 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	FLAGS_ESC=`$ROOT/utils/replace "$LUXRAYS_FLAGS"`
 	TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
 
-	echo " * Copying luxcore sources"
-	rm -rf $WORK/*
-	cp -r $ROOT/$LUX_TAG $WORK/luxcore
-	cd $WORK/luxcore
-	cp -vf ${DIST}/luxcore.cmake cmake/SpecializedConfig/luxcore.cmake
+	cd $ROOT/$LUX_TAG
 
 	echo " * Configuring $LUXRAYS_TARGET"
 	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL $BUILD_LUXCORE_DLL -Wno-dev \
-	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/luxcore.cmake \
+	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake \
 	-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
 	-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
 	-D PYTHON_INCLUDE_DIR2:PATH="$PYTHON_INCLUDE" \
@@ -528,7 +524,6 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	fi
 
     mkdir ${TARGET}/$LUX_TAG 2>/dev/null
-    cd $WORK/luxcore
 	if echo $LUX_TAG | grep -iq 'pyluxcore' ; then
 	    cp -vf lib/*.so ${TARGET}/$LUX_TAG
 
