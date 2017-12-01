@@ -84,10 +84,10 @@ fi
 # disabling OpenCL support if sources dir doesn't contains "opencl"
 # and it's not a LuxMark source tree
 if echo $LUX_TAG | grep -iq 'opencl' ; then
+	echo " * OpenCL enabled"
+else
 	echo " * OpenCL disabled"
 	DISABLE_OPENCL="-D LUXRAYS_DISABLE_OPENCL=1"
-else
-	echo " * OpenCL enabled"
 fi
 
 # compile pyluxcore target only if sources dir contains "pyluxcore"
