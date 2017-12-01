@@ -53,7 +53,7 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 4   - Qt"
 	echo "	Stage 4.1 - Embree"
 	echo "	Stage 5   - luxcore"
-	echo "	Stage 6   - luxmark"
+#	echo "	Stage 6   - luxmark"
 	echo
 	exit 1
 fi
@@ -68,17 +68,17 @@ PAUSE=5
 
 if [[ ! -d "$1" ]] ; then
 	echo
-	echo "Lux src path is incorrect"
+	echo "LuxCore src path is incorrect"
 	exit 1
 fi
 
 # enable LuxCore DLL building if sources dir doesn't contains "-dll" postfix
 # and it's not a LuxMark source tree
 if echo $LUX_TAG | grep -iq 'dll' ; then
-	echo " * LuxCore static enabled"
-else
 	echo " * LuxCore DLL enabled"
 	BUILD_LUXCORE_DLL="-D BUILD_LUXCORE_DLL=1"
+else
+	echo " * LuxCore static enabled"
 fi
 
 # disabling OpenCL support if sources dir doesn't contains "opencl"
@@ -527,11 +527,6 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
             exit 1
 	fi
 
-	complete_stage $NEXT
-
-	sleep $PAUSE
-	cd $ROOT
-
     mkdir ${TARGET}/$LUX_TAG 2>/dev/null
     cd $WORK/luxcore
 	if echo $LUX_TAG | grep -iq 'pyluxcore' ; then
@@ -543,4 +538,9 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	else
 		cp -vf bin/luxcoreui bin/luxcoreconsole bin/luxcoredemo bin/luxcorescenedemo lib/*.so ${TARGET}/$LUX_TAG
 	fi
+
+	complete_stage $NEXT
+
+	sleep $PAUSE
+	cd $ROOT
 fi
