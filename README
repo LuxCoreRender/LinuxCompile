@@ -71,6 +71,10 @@ Here is how you can do this:
     packed in tar.bz2 archive and saved below the platform-specific
     'target' subdirectory.
 
+ 4. This step is optional. You can compile LuxMark too if you unpack the sources
+    into the subdirectory below 'root' directory named "LuxMark". Note: you have
+    to compile LuxCore with OpenCL enabled to be able to compile LuxMark.
+
 Clang:
 -----
 The compilation environment supports Clang for compiling both LuxCoreRender
