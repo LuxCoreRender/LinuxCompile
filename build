@@ -49,11 +49,10 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 1.6 - ilmbase"
 	echo "	Stage 1.7 - openexr"
 	echo "	Stage 2.1 - openimageio"
-	echo "	Stage 3   - fftw"
-	echo "	Stage 4   - Qt"
-	echo "	Stage 4.1 - Embree"
+	echo "	Stage 3   - Qt"
+	echo "	Stage 3.1   - Embree"
 	echo "	Stage 5   - luxcore"
-#	echo "	Stage 6   - luxmark"
+	echo "	Stage 6   - luxmark (optional)"
 	echo
 	exit 1
 fi
@@ -82,7 +81,6 @@ else
 fi
 
 # disabling OpenCL support if sources dir doesn't contains "opencl"
-# and it's not a LuxMark source tree
 if echo $LUX_TAG | grep -iq 'opencl' ; then
 	echo " * OpenCL enabled"
 else
@@ -93,16 +91,14 @@ fi
 # compile pyluxcore target only if sources dir contains "pyluxcore"
 if echo $LUX_TAG | grep -iq 'pyluxcore' ; then
 	echo " * pyluxcore target only"
-	LUXRAYS_TARGET='pyluxcore'
+	LUXCORE_TARGET='pyluxcore'
 else
-	LUXRAYS_TARGET='luxrays luxcore pyluxcore luxcoreui'
+	LUXCORE_TARGET='luxrays luxcore pyluxcore luxcoreui'
 fi
 
 # build flags
 GENERIC_FLAGS="$6"
-LUXRAYS_FLAGS=`echo $7 | sed s/'-fvisibility=hidden'//`" -pthread -lrt"
-LUXRAYS_OPTS="-D SLG_LIBRARY='${WORK}/lib/libsmallluxgpu.a'"
-LUX_FLAGS="$7 -I${TARGET}/include -L${TARGET}/lib -pthread -lrt"
+LUXCORE_FLAGS=`echo $7 | sed s/'-fvisibility=hidden'//`" -pthread -lrt"
 
 # platform specs
 export CHOST="$8"
@@ -120,8 +116,7 @@ unset CC CXX
 if [[ -e "${ROOT}"/use_clang ]] ; then
 	echo " * Using Clang compiler"
 	CLANG=1
-	LUXRAYS_FLAGS="-mtune=generic -mmmx -msse -msse2 -O3 -pipe -fvisibility-inlines-hidden -fno-stack-protector -fPIC -fopenmp=libomp"
-	LUX_FLAGS="-mtune=generic -mmmx -msse -msse2 -O3 -pipe -fvisibility=hidden -fvisibility-inlines-hidden -fPIC -fno-stack-protector -fopenmp=libomp -I${TARGET}/include"
+	LUXCORE_FLAGS="-mtune=generic -mmmx -msse -msse2 -O3 -pipe -fvisibility-inlines-hidden -fno-stack-protector -fPIC -fopenmp=libomp"
 	export CC="clang"
 	export CXX="clang++"
 	export LDFLAGS="${LDFLAGS} -O3 -Wl,-plugin,/usr/lib64/LLVMgold.so -L${TARGET}/lib -static-libgcc -static-libstdc++"
@@ -409,29 +404,8 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
     complete_stage $NEXT
 fi
 
-# STAGE 3 -- FFTW
-NEXT=4
-if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage fftw fftw*.tar.gz
-
-	if ! ./configure --enable-static --disable-shared --enable-sse2 --enable-threads \
-	--with-pic $CONFIGOPTS --prefix=$TARGET ; then
-		echo " !!! FFTW configuration failed"
-		exit 1
-	fi
-	sleep $PAUSE
-	if make $MAKEOPTS && make install ; then
-		echo " * FFTW compiled and installed successfully"
-	else
-		echo " !!! FFTW compilation failed"
-		exit 1
-	fi
-
-	complete_stage $NEXT
-fi
-
-# STAGE 4 -- Qt
-NEXT=4.1
+# STAGE 3 -- Qt
+NEXT=3.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage Qt qt-everywhere-opensource*.tar.gz
 
@@ -463,7 +437,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 fi
 
 # STAGE 4.1 -- Embree
-NEXT=4.2
+NEXT=5
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage Embree embree_bvh_build-*.tar.xz
 
@@ -487,7 +461,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	export HOME=${TARGET}
 	export PATH=${TARGET}/bin/:$PATH
-	export CFLAGS="${LUXRAYS_FLAGS}"
+	export CFLAGS="${LUXCORE_FLAGS}"
 	export CXXFLAGS="${CFLAGS}"
 	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
 	export CMAKE_INCLUDE_PATH=$TARGET/include
@@ -497,32 +471,32 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	export BOOST_INCLUDEDIR=$TARGET/include
 	export BOOST_LIBRARY_DIRS=$TARGET/lib
 
-	FLAGS_ESC=`$ROOT/utils/replace "$LUXRAYS_FLAGS"`
+	FLAGS_ESC=`$ROOT/utils/replace "$LUXCORE_FLAGS"`
 	TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
 
 	cd $ROOT/$LUX_TAG
 
-	echo " * Configuring $LUXRAYS_TARGET"
+	echo " * Configuring $LUXCORE_TARGET"
 	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL $BUILD_LUXCORE_DLL -Wno-dev \
 	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake \
 	-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
 	-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
 	-D PYTHON_INCLUDE_DIR2:PATH="$PYTHON_INCLUDE" \
 	-D PYTHON_INCLUDE_DIRS:PATH="$PYTHON_INCLUDE" . ; then
-		echo " !!! $LUXRAYS_TARGET configuration failed"
+		echo " !!! $LUXCORE_TARGET configuration failed"
 		exit 1
 	fi
 	sleep $PAUSE
-	echo " * Compiling $LUXRAYS_TARGET"
-#	if make $MAKEOPTS $LUXRAYS_TARGET ; then
+	echo " * Compiling $LUXCORE_TARGET"
+#	if make $MAKEOPTS $LUXCORE_TARGET ; then
 	if cmake --build . --target pyluxcore -- $MAKEOPTS && \
 	    cmake --build . --target luxcoreui -- $MAKEOPTS && \
 	    cmake --build . --target luxcoreconsole -- $MAKEOPTS && \
 	    cmake --build . --target luxcoredemo -- $MAKEOPTS && \
 	    cmake --build . --target luxcorescenedemo -- $MAKEOPTS ; then
-            echo " * $LUXRAYS_TARGET compiled successfully"
+            echo " * $LUXCORE_TARGET compiled successfully"
 	else
-            echo " !!! $LUXRAYS_TARGET compilation failed"
+            echo " !!! $LUXCORE_TARGET compilation failed"
             exit 1
 	fi
 
@@ -535,6 +509,55 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	    exit 0
 	else
 		cp -vf bin/luxcoreui bin/luxcoreconsole bin/luxcoredemo bin/luxcorescenedemo lib/*.so ${TARGET}/$LUX_TAG
+	fi
+
+	complete_stage $NEXT
+
+	sleep $PAUSE
+	cd $ROOT
+fi
+
+# STAGE 6 -- LuxMark
+NEXT=7
+if [[ $STAGE && $STAGE < $NEXT ]] ; then
+	echo -ne "\033]0;LuxMark stage\007"
+
+	if [[ ! -d "LuxMark" ]] ; then
+		echo
+		echo "LuxMark src not avilable, skipping the stage"
+	else
+		export HOME=LuxMark
+		export PATH=LuxMark/bin/:$PATH
+		export CFLAGS="${LUXCORE_FLAGS}"
+		export CXXFLAGS="${CFLAGS}"
+		export LD_LIBRARY_PATH=LuxMark/lib/:$LD_LIBRARY_PATH
+		export CMAKE_INCLUDE_PATH=$TARGET/include
+		export CMAKE_LIBRARY_PATH=$TARGET/lib
+		export CMAKE_PREFIX_PATH=$TARGET
+		export BOOST_ROOT=$TARGET
+		export BOOST_INCLUDEDIR=$TARGET/include
+		export BOOST_LIBRARY_DIRS=$TARGET/lib
+		export LuxRays_HOME=$ROOT/$LUX_TAG
+
+		FLAGS_ESC=`$ROOT/utils/replace "$LUXCORE_FLAGS"`
+		TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
+
+		cd $ROOT/LuxMark
+
+		echo " * Configuring LuxMark"
+		if ! cmake -G "Unix Makefiles" -Wno-dev \
+		-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake . ; then
+			echo " !!! LuxMark configuration failed"
+			exit 1
+		fi
+		sleep $PAUSE
+		echo " * Compiling LuxMark"
+		if cmake --build . --target all -- $MAKEOPTS ; then
+				echo " * LuxMark compiled successfully"
+		else
+				echo " !!! LuxMark compilation failed"
+				exit 1
+		fi
 	fi
 
 	complete_stage $NEXT
