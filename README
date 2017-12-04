@@ -43,7 +43,7 @@ try to figure out what's missing, and prepare the compilation environment
 below the 'root' directory -- the dir where the script resides (although
 paths are configurable in build-* wrapper scripts).
 
-The easies way to start compilation is by using the wrapper scripts
+The easiest way to start compilation is by using the wrapper scripts
 which have all the variables preconfigured for the most common platforms.
 Here is how you can do this:
 
