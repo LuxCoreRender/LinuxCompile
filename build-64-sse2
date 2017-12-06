@@ -25,8 +25,8 @@ LUX_TAG="${1%/}"
 STAGE=$2
 TAG="${LUX_TAG}"
 
-GENERIC_FLAGS="-mtune=generic -std=c++11 -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
-LUX_FLAGS="-mtune=generic -std=c++11 -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
+GENERIC_FLAGS="-w -mtune=generic -std=gnu++98 -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
+LUXCORE_FLAGS="-mtune=generic -std=gnu++98 -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
           -mfpmath=sse -fvisibility=hidden -fvisibility-inlines-hidden \
           -ftree-vectorize -fno-math-errno -fno-signed-zeros -fno-trapping-math \
           -fassociative-math -fno-rounding-math -fno-signaling-nans \
@@ -42,7 +42,7 @@ if ! $ROOT/build "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" \
     exit 1
 fi
 
-if ! $ROOT/utils/install "$TARGET" "$LUX_TAG" "$TAG" ; then
+if ! $ROOT/utils/install "$TARGET" "$LUXCORE_TAG" "$TAG" ; then
     echo " * Installation FAILED"
 else
     echo " * Installed successfully to $TARGET/$LUX_TAG"
