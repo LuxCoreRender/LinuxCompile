@@ -50,9 +50,9 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 1.7 - openexr"
 	echo "	Stage 2.1 - openimageio"
 	echo "	Stage 3   - Qt"
-	echo "	Stage 3.1 - Embree"
-	echo "	Stage 4   - luxcore"
-	echo "	Stage 5   - luxmark (optional)"
+	echo "	Stage 4.1 - Embree"
+	echo "	Stage 5   - luxcore"
+	echo "	Stage 6   - luxmark (optional)"
 	echo
 	exit 1
 fi
@@ -454,8 +454,8 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	complete_stage $NEXT
 fi
 
-# STAGE 4 -- LuxCore
-NEXT=5
+# STAGE 5 -- LuxCore
+NEXT=6
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	echo -ne "\033]0;LuxCore stage\007"
 
@@ -517,8 +517,8 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	cd $ROOT
 fi
 
-# STAGE 5 -- LuxMark
-NEXT=6
+# STAGE 6 -- LuxMark
+NEXT=7
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	echo -ne "\033]0;LuxMark stage\007"
 
