@@ -12,11 +12,8 @@ TAG=$3
 sleep 5
 echo
 echo " * Installing tag $TARGET"
-rm -fr $TARGET/$LUX_TAG/$TAG* 2>/dev/null
 mkdir -p $TARGET/$LUX_TAG/$TAG 2>/dev/null
 cd $TARGET/$LUX_TAG
 cp $TARGET/lib/lib*.so* $TAG
-cp {luxcoreui,luxcoreconsole,pyluxcore,luxcoredemo,luxcorescenedemo}* $TAG
 tar -cvjf ${TAG}.tar.bz2 $TAG
-rm -fr $TAG
 echo
