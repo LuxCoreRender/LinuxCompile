@@ -488,12 +488,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	fi
 	sleep $PAUSE
 	echo " * Compiling $LUXCORE_TARGET"
-#	if make $MAKEOPTS $LUXCORE_TARGET ; then
-	if cmake --build . --target pyluxcore -- $MAKEOPTS && \
-	    cmake --build . --target luxcoreui -- $MAKEOPTS && \
-	    cmake --build . --target luxcoreconsole -- $MAKEOPTS && \
-	    cmake --build . --target luxcoredemo -- $MAKEOPTS && \
-	    cmake --build . --target luxcorescenedemo -- $MAKEOPTS ; then
+	if cmake --build . -- $MAKEOPTS ; then
             echo " * $LUXCORE_TARGET compiled successfully"
 	else
             echo " !!! $LUXCORE_TARGET compilation failed"
