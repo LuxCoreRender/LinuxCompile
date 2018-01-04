@@ -502,8 +502,6 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	    sleep $PAUSE
 	    cd $ROOT
 	    exit 0
-	else
-		cp -vf bin/luxcoreui bin/luxcoreconsole bin/luxcoredemo bin/luxcorescenedemo lib/*.so ${TARGET}/$LUX_TAG
 	fi
 
 	complete_stage $NEXT

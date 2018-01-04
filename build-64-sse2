@@ -23,7 +23,6 @@ fi
 
 LUX_TAG="${1%/}"
 STAGE=$2
-TAG="${LUX_TAG}"
 
 GENERIC_FLAGS="-w -mtune=generic -std=gnu++98 -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
 LUXCORE_FLAGS="-mtune=generic -std=gnu++98 -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
@@ -42,7 +41,7 @@ if ! $ROOT/build "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" \
     exit 1
 fi
 
-if ! $ROOT/utils/install "$TARGET" "$LUXCORE_TAG" "$TAG" ; then
+if ! $ROOT/utils/install "$TARGET" "$LUX_TAG" ; then
     echo " * Installation FAILED"
 else
     echo " * Installed successfully to $TARGET/$LUX_TAG"
