@@ -71,9 +71,9 @@ if [[ ! -d "$1" ]] ; then
 	exit 1
 fi
 
-# enable LuxCore DLL building if sources dir doesn't contains "-dll" postfix
+# enable LuxCore DLL building if sources dir contains "dll" or "sdk" postfix
 # and it's not a LuxMark source tree
-if echo $LUX_TAG | grep -iq 'dll' ; then
+if echo $LUX_TAG | grep -iq -e 'dll' -e 'sdk' ; then
 	echo " * LuxCore DLL enabled"
 	BUILD_LUXCORE_DLL="-D BUILD_LUXCORE_DLL=1"
 else

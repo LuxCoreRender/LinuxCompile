@@ -8,34 +8,78 @@ fi
 TARGET=$1
 LUX_TAG=$2
 
-sleep 5
-echo
-echo " * Installing tag $TARGET/$LUX_TAG"
+# Check if I have to build the stand alone version or the SDK version
+if echo $LUX_TAG | grep -iq 'sdk' ; then
+	echo
+	echo " * Installing SDK version at $TARGET/$LUX_TAG"
 
-rm -rf $TARGET/$LUX_TAG
-mkdir $TARGET/$LUX_TAG
+	rm -rf $TARGET/$LUX_TAG
+	mkdir $TARGET/$LUX_TAG
 
-mkdir $TARGET/$LUX_TAG/bin
-cp $LUX_TAG/bin/luxcoreui $LUX_TAG/bin/luxcoreconsole $TARGET/$LUX_TAG/bin
+	mkdir $TARGET/$LUX_TAG/bin
+	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/bin/luxcoreconsole $LUX_TAG/bin/luxcoredemo \
+		$LUX_TAG/bin/luxcorescenedemo $TARGET/$LUX_TAG/bin
 
-mkdir $TARGET/$LUX_TAG/lib
-cd $TARGET/lib
-cp --preserve=links lib*.so* $TARGET/$LUX_TAG/lib
-cd ../..
+	mkdir $TARGET/$LUX_TAG/lib
+	cp $LUX_TAG/lib/*.so $TARGET/$LUX_TAG/lib
+	cp $TARGET/lib/libembree.so.2 $TARGET/lib/libtbb.so.2 $TARGET/$LUX_TAG/lib
 
-cp $LUX_TAG/README.md $TARGET/$LUX_TAG
-cp $LUX_TAG/COPYING.txt $TARGET/$LUX_TAG
-cp $LUX_TAG/AUTHORS.txt $TARGET/$LUX_TAG
-mkdir -p $TARGET/$LUX_TAG/scenes/cornell
-cp $LUX_TAG/scenes/cornell/cornell.cfg $TARGET/$LUX_TAG/scenes/cornell
-cp $LUX_TAG/scenes/cornell/cornell.scn $TARGET/$LUX_TAG/scenes/cornell
-cp $LUX_TAG/scenes/cornell/Khaki.ply $TARGET/$LUX_TAG/scenes/cornell
-cp $LUX_TAG/scenes/cornell/HalveRed.ply $TARGET/$LUX_TAG/scenes/cornell
-cp $LUX_TAG/scenes/cornell/DarkGreen.ply $TARGET/$LUX_TAG/scenes/cornell
-cp $LUX_TAG/scenes/cornell/Grey.ply $TARGET/$LUX_TAG/scenes/cornell
+	cp $LUX_TAG/README.md $TARGET/$LUX_TAG
+	cp $LUX_TAG/COPYING.txt $TARGET/$LUX_TAG
+	cp $LUX_TAG/AUTHORS.txt $TARGET/$LUX_TAG
+	cp $LUX_TAG/sdk/CMakeLists.txt $TARGET/$LUX_TAG
 
-cd $TARGET
-tar -cvjf ${LUX_TAG}.tar.bz2 $LUX_TAG
-cd ..
+	mkdir $TARGET/$LUX_TAG/cmake
+	cp $LUX_TAG/cmake/Packages/FindOpenCL.cmake $TARGET/$LUX_TAG/cmake
 
-echo
+	mkdir $TARGET/$LUX_TAG/include
+	mkdir $TARGET/$LUX_TAG/include/luxrays
+	mkdir $TARGET/$LUX_TAG/include/luxrays/utils
+	cp -r $LUX_TAG/include/luxrays/utils/cyhair $TARGET/$LUX_TAG/include/luxrays/utils
+	cp $LUX_TAG/include/luxrays/utils/ocl.h $TARGET/$LUX_TAG/include/luxrays/utils
+	cp $LUX_TAG/include/luxrays/utils/oclerror.h $TARGET/$LUX_TAG/include/luxrays/utils
+	cp $LUX_TAG/include/luxrays/utils/properties.h $TARGET/$LUX_TAG/include/luxrays/utils
+	cp $LUX_TAG/include/luxrays/utils/utils.h $TARGET/$LUX_TAG/include/luxrays/utils
+
+	mkdir $TARGET/$LUX_TAG/include/luxcore
+	cp $LUX_TAG/include/luxcore/cfg.h $TARGET/$LUX_TAG/include/luxcore
+	cp $LUX_TAG/include/luxcore/luxcore.h $TARGET/$LUX_TAG/include/luxcore
+
+	cp -r $LUX_TAG/samples $TARGET/$LUX_TAG
+	cp -r $LUX_TAG/scenes $TARGET/$LUX_TAG
+
+	cd $TARGET
+	tar -cvjf ${LUX_TAG}.tar.bz2 $LUX_TAG
+	cd ..
+
+	echo
+else
+	echo
+	echo " * Installing STANDALONE version at $TARGET/$LUX_TAG"
+
+	rm -rf $TARGET/$LUX_TAG
+	mkdir $TARGET/$LUX_TAG
+
+	mkdir $TARGET/$LUX_TAG/bin
+	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/bin/luxcoreconsole $TARGET/$LUX_TAG/bin
+
+	mkdir $TARGET/$LUX_TAG/lib
+	cp $TARGET/lib/libembree.so.2  $TARGET/lib/libtbb.so.2 $TARGET/$LUX_TAG/lib
+
+	cp $LUX_TAG/README.md $TARGET/$LUX_TAG
+	cp $LUX_TAG/COPYING.txt $TARGET/$LUX_TAG
+	cp $LUX_TAG/AUTHORS.txt $TARGET/$LUX_TAG
+	mkdir -p $TARGET/$LUX_TAG/scenes/cornell
+	cp $LUX_TAG/scenes/cornell/cornell.cfg $TARGET/$LUX_TAG/scenes/cornell
+	cp $LUX_TAG/scenes/cornell/cornell.scn $TARGET/$LUX_TAG/scenes/cornell
+	cp $LUX_TAG/scenes/cornell/Khaki.ply $TARGET/$LUX_TAG/scenes/cornell
+	cp $LUX_TAG/scenes/cornell/HalveRed.ply $TARGET/$LUX_TAG/scenes/cornell
+	cp $LUX_TAG/scenes/cornell/DarkGreen.ply $TARGET/$LUX_TAG/scenes/cornell
+	cp $LUX_TAG/scenes/cornell/Grey.ply $TARGET/$LUX_TAG/scenes/cornell
+
+	cd $TARGET
+	tar -cvjf ${LUX_TAG}.tar.bz2 $LUX_TAG
+	cd ..
+
+	echo
+fi

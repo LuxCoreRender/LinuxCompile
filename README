@@ -51,6 +51,7 @@ Here is how you can do this:
     (where scripts are located). The subdir with Lux sources may have
     any name, however if it contains 'opencl' then OpenCL-enabled
     version is compiled (disabled otherwise); if it contains 'dll' then the DLL
+    version of LuxCore library is compiled; if it contains 'sdk' then the SDK
     version of LuxCore library is compiled; if it contains 'pyluxcore' then
     only pyluxcore target will be compiled; 
     
@@ -65,7 +66,7 @@ Here is how you can do this:
     
     If stage number is omitted the script will continue from where it
     was previously terminated, i.e. resume compilation of unfinished
-    deps, or begin compiling LuxXoreRender if all dependencies are in place.
+    deps, or begin compiling LuxCoreRender if all dependencies are in place.
     
  3. Once the compilation is complete, Lux binaries and shared libs are
     packed in tar.bz2 archive and saved below the platform-specific
