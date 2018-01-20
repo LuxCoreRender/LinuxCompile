@@ -60,10 +60,20 @@ else
 	rm -rf $TARGET/$LUX_TAG
 	mkdir $TARGET/$LUX_TAG
 
+	# Build PyInstaller
+	cd $LUX_TAG
+	pyinstaller samples/pyluxcoreconsole/pyluxcoreconsole.linux.spec
+	pyinstaller samples/pyluxcoremerge/pyluxcoremerge.linux.spec
+	pyinstaller samples/pyluxcorenetconsole/pyluxcorenetconsole.linux.spec
+	pyinstaller samples/pyluxcorenetnode/pyluxcorenetnode.linux.spec
+	cd -
+
 	mkdir $TARGET/$LUX_TAG/bin
-	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/bin/luxcoreconsole $TARGET/$LUX_TAG/bin
+	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/dist/pyluxcoreconsole $LUX_TAG/dist/pyluxcoremerge \
+		 $LUX_TAG/dist/pyluxcorenetconsole  $LUX_TAG/dist/pyluxcorenetnode $TARGET/$LUX_TAG/bin
 
 	mkdir $TARGET/$LUX_TAG/lib
+	cp $LUX_TAG/lib/*.so $TARGET/$LUX_TAG/lib
 	cp $TARGET/lib/libembree.so.2  $TARGET/lib/libtbb.so.2 $TARGET/$LUX_TAG/lib
 
 	cp $LUX_TAG/README.md $TARGET/$LUX_TAG
