@@ -470,6 +470,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	export BOOST_ROOT=$TARGET
 	export BOOST_INCLUDEDIR=$TARGET/include
 	export BOOST_LIBRARY_DIRS=$TARGET/lib
+	export EMBREE_ROOT=$TARGET
 
 	FLAGS_ESC=`$ROOT/utils/replace "$LUXCORE_FLAGS"`
 	TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
@@ -481,7 +482,6 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake \
 	-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
 	-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
-	-D PYTHON_INCLUDE_DIR2:PATH="$PYTHON_INCLUDE" \
 	-D PYTHON_INCLUDE_DIRS:PATH="$PYTHON_INCLUDE" . ; then
 		echo " !!! $LUXCORE_TARGET configuration failed"
 		exit 1
