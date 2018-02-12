@@ -63,10 +63,7 @@ else
 
 	# Build PyInstaller
 	cd $LUX_TAG
-	pyinstaller samples/pyluxcoreconsole/pyluxcoreconsole.linux.spec
-	pyinstaller samples/pyluxcoremerge/pyluxcoremerge.linux.spec
-	pyinstaller samples/pyluxcorenetconsole/pyluxcorenetconsole.linux.spec
-	pyinstaller samples/pyluxcorenetnode/pyluxcorenetnode.linux.spec
+	pyinstaller samples/pyluxcoretool/pyluxcoretool.linux.spec
 	cd -
 
 	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/dist/pyluxcoreconsole $LUX_TAG/dist/pyluxcoremerge \
