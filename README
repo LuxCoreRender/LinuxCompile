@@ -55,7 +55,11 @@ Here is how you can do this:
     version is compiled (disabled otherwise); if it contains 'dll' then the DLL
     version of LuxCore library is compiled; if it contains 'sdk' then the SDK
     version of LuxCore library is compiled; if it contains 'pyluxcore' then
-    only pyluxcore target will be compiled; 
+    only pyluxcore target will be compiled;
+    
+    NOTE: you need git LFS extension (https://git-lfs.github.com) to clone
+    LinuxCompileDeps repository. Or you can install and use
+    https://desktop.github.com to clone the repositories;
     
  2. Run the wrapper script passing it the name of LuxCoreRender sources dir
     and optionally the stage number:
