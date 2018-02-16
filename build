@@ -517,7 +517,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	if [[ ! -d "LuxMark" ]] ; then
 		echo
-		echo "LuxMark src not avilable, skipping the stage"
+		echo "LuxMark src not available, skipping the stage"
 	else
 		export HOME=LuxMark
 		export PATH=LuxMark/bin/:$PATH

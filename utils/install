@@ -66,8 +66,7 @@ else
 	pyinstaller samples/pyluxcoretool/pyluxcoretool.linux.spec
 	cd -
 
-	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/dist/pyluxcoreconsole $LUX_TAG/dist/pyluxcoremerge \
-		 $LUX_TAG/dist/pyluxcorenetconsole  $LUX_TAG/dist/pyluxcorenetnode $TARGET/$LUX_TAG
+	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/dist/pyluxcoreconsole $LUX_TAG/dist/pyluxcoretool $TARGET/$LUX_TAG
 
 	cp $LUX_TAG/lib/*.so $TARGET/$LUX_TAG
 	cp $TARGET/lib/libembree.so.2 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/$LUX_TAG

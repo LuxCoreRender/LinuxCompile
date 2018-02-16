@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# ./utils/create_python_wheel.sh target-64-sse2 luxcorerender-v2.0alpha4-linux64
+# ./utils/create_python_wheel.sh target-64-sse2 luxcorerender-v2.0alpha5-linux64
+# ./utils/create_python_wheel.sh target-64-sse2 luxcorerender-v2.0alpha5-linux64-opencl
 
 if [[ ! $2 ]] ; then
 	echo " * Unable to create Python Wheel"
@@ -30,5 +31,5 @@ cp $TARGET/lib/libembree.so.2 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.s
 
 cd $TARGET/$LUX_TAG-wheel
 python3 setup.py bdist_wheel --plat-name manylinux1_x86_64
-twine upload dist/*.whl
+twine upload dist/luxcorerender_opencl-2.0a5-cp34-cp34m-manylinux1_x86_64.whl
 cd -
