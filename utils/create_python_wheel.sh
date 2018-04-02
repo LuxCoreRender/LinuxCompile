@@ -33,6 +33,8 @@ cp $TARGET/lib/libembree.so.2 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.s
 
 cd $TARGET/$LUX_TAG-wheel
 python3 setup.py bdist_wheel --plat-name manylinux1_x86_64
-twine upload dist/luxcorerender-2.0b1-cp34-cp34m-manylinux1_x86_64.whl
-#twine upload dist/luxcorerender_opencl-2.0b1-cp34-cp34m-manylinux1_x86_64.whl
+#twine upload dist/luxcorerender-2.0b1-cp34-cp34m-manylinux1_x86_64.whl
+#
+mv dist/luxcorerender-2.0b1-cp34-cp34m-manylinux1_x86_64.whl dist/luxcorerender_opencl-2.0b1-cp34-cp34m-manylinux1_x86_64.whl
+twine upload dist/luxcorerender_opencl-2.0b1-cp34-cp34m-manylinux1_x86_64.whl
 cd -
