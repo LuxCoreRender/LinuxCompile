@@ -62,11 +62,15 @@ else
 	mkdir $TARGET/$LUX_TAG
 
 	# Build PyInstaller
-	cd $LUX_TAG
-	pyinstaller samples/pyluxcoretool/pyluxcoretool.linux.spec
-	cd -
-
-	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/dist/pyluxcoretool $TARGET/$LUX_TAG
+	#
+	# PyInstaller is pretty much broken on Linux: https://github.com/LuxCoreRender/LuxCore/issues/80
+#	cd $LUX_TAG
+#	pyinstaller samples/pyluxcoretool/pyluxcoretool.linux.spec
+#	cd -
+#
+#	cp $LUX_TAG/bin/luxcoreui $LUX_TAG/dist/pyluxcoretool $TARGET/$LUX_TAG
+	# Workaround to PyInstaller, just run "python3 pyluxcoretools.zip"
+	cp $LUX_TAG/lib/pyluxcoretools.zip $TARGET/$LUX_TAG
 
 	cp $LUX_TAG/lib/*.so $TARGET/$LUX_TAG
 	cp $TARGET/lib/libembree.so.2 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/$LUX_TAG
