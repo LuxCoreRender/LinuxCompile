@@ -72,6 +72,7 @@ else
 	# Workaround to PyInstaller, just run "python3 pyluxcoretools.zip"
 	cp $LUX_TAG/lib/pyluxcoretools.zip $TARGET/$LUX_TAG
 
+	cp $LUX_TAG/bin/luxcoreui $TARGET/$LUX_TAG
 	cp $LUX_TAG/lib/*.so $TARGET/$LUX_TAG
 	cp $TARGET/lib/libembree.so.2 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/$LUX_TAG
 
