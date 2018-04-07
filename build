@@ -8,7 +8,9 @@ function begin_stage() {
 	echo " * Cleaning and unpacking ${stage_name}"
 	rm -rf $WORK/*
 
-	if echo $distfile_mask | grep -q '\.tar\.gz$' ; then
+	if echo $distfile_mask | grep -q '\.tgz$' ; then
+		tar -xzf ${DIST}/$distfile_mask -C $WORK
+	elif echo $distfile_mask | grep -q '\.tar\.gz$' ; then
 		tar -xzf ${DIST}/$distfile_mask -C $WORK
 	elif echo $distfile_mask | grep -q '\.tar\.bz2$' ; then
 		tar -xjf ${DIST}/$distfile_mask -C $WORK
@@ -51,6 +53,9 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 2.1 - openimageio"
 	echo "	Stage 3   - Qt"
 	echo "	Stage 4.1 - Embree"
+	echo "	Stage 4.2 - C-blosc"
+	echo "	Stage 4.3 - TBB"
+	echo "	Stage 4.4 - OpenVDB"
 	echo "	Stage 5   - luxcore"
 	echo "	Stage 6   - luxmark (optional)"
 	echo
@@ -437,7 +442,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 fi
 
 # STAGE 4.1 -- Embree
-NEXT=5
+NEXT=4.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage Embree embree-*.tar.gz
 
@@ -448,6 +453,60 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
         echo " * Embree library and headers installed successfully"
     else
         echo " !!! Embree library and headers installation failed"
+        exit 1
+    fi
+
+	complete_stage $NEXT
+fi
+
+# STAGE 4.2 -- C-blosc
+NEXT=4.3
+if [[ $STAGE && $STAGE < $NEXT ]] ; then
+	begin_stage C-blosc c-blosc-*.tgz
+
+	cp -v ${DIST}/cblosc-install.sh .
+
+    sleep 1
+    if ./cblosc-install.sh $TARGET ; then
+        echo " * C-blosc library and headers installed successfully"
+    else
+        echo " !!! C-blosc library and headers installation failed"
+        exit 1
+    fi
+
+	complete_stage $NEXT
+fi
+
+# STAGE 4.3 -- TBB
+NEXT=4.4
+if [[ $STAGE && $STAGE < $NEXT ]] ; then
+	begin_stage TBB tbb*_lin.tgz
+
+	cp -v ${DIST}/tbb-install.sh .
+
+    sleep 1
+    if ./tbb-install.sh $TARGET ; then
+        echo " * TBB library and headers installed successfully"
+    else
+        echo " !!! TBB library and headers installation failed"
+        exit 1
+    fi
+
+	complete_stage $NEXT
+fi
+
+# STAGE 4.4 -- OpenVDB
+NEXT=5
+if [[ $STAGE && $STAGE < $NEXT ]] ; then
+	begin_stage OpenVDB openvdb-*-bin.tgz
+
+	cp -v ${DIST}/openvdb-install.sh .
+
+    sleep 1
+    if ./openvdb-install.sh $TARGET ; then
+        echo " * OpenVDB library and headers installed successfully"
+    else
+        echo " !!! OpenVDB library and headers installation failed"
         exit 1
     fi
 
