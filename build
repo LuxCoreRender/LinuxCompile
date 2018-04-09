@@ -55,7 +55,6 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 4.1 - Embree"
 	echo "	Stage 4.2 - C-blosc"
 	echo "	Stage 4.3 - TBB"
-	echo "	Stage 4.4 - OpenVDB"
 	echo "	Stage 5   - luxcore"
 	echo "	Stage 6   - luxmark (optional)"
 	echo
@@ -478,7 +477,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 fi
 
 # STAGE 4.3 -- TBB
-NEXT=4.4
+NEXT=5
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage TBB tbb*_lin.tgz
 
@@ -489,24 +488,6 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
         echo " * TBB library and headers installed successfully"
     else
         echo " !!! TBB library and headers installation failed"
-        exit 1
-    fi
-
-	complete_stage $NEXT
-fi
-
-# STAGE 4.4 -- OpenVDB
-NEXT=5
-if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage OpenVDB openvdb-*-bin.tgz
-
-	cp -v ${DIST}/openvdb-install.sh .
-
-    sleep 1
-    if ./openvdb-install.sh $TARGET ; then
-        echo " * OpenVDB library and headers installed successfully"
-    else
-        echo " !!! OpenVDB library and headers installation failed"
         exit 1
     fi
 
