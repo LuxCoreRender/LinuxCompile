@@ -31,19 +31,17 @@
 #include <cstdlib>
 #include <string>
 
-#ifdef _WIN32
-# include "osdep.h"
-#else
-//# include <dlfcn.h>
+#include <OpenImageIO/platform.h>
+
+#ifndef _WIN32
+# include <dlfcn.h>
 #endif
 
-#include "thread.h"
+#include <OpenImageIO/thread.h>
+#include <OpenImageIO/plugin.h>
 
-#include "plugin.h"
 
-
-OIIO_NAMESPACE_ENTER
-{
+OIIO_NAMESPACE_BEGIN
 
 using namespace Plugin;
 
@@ -77,8 +75,8 @@ Plugin::plugin_extension (void)
 Handle
 dlopen (const char *plugin_filename, int)
 {
-  //return LoadLibrary (plugin_filename);
-  return NULL;
+    //return LoadLibrary (plugin_filename);
+	return NULL;
 }
 
 
@@ -86,8 +84,8 @@ dlopen (const char *plugin_filename, int)
 bool
 dlclose (Handle plugin_handle)
 {
-  //return FreeLibrary ((HMODULE)plugin_handle) != 0;
-  return false;
+    //return FreeLibrary ((HMODULE)plugin_handle) != 0;
+	return false;
 }
 
 
@@ -95,8 +93,8 @@ dlclose (Handle plugin_handle)
 void *
 dlsym (Handle plugin_handle, const char *symbol_name)
 {
-  //return GetProcAddress ((HMODULE)plugin_handle, symbol_name);
-  return NULL;
+    //return GetProcAddress ((HMODULE)plugin_handle, symbol_name);
+	return NULL;
 }
 
 
@@ -104,7 +102,7 @@ dlsym (Handle plugin_handle, const char *symbol_name)
 std::string
 dlerror ()
 {
-  /*LPVOID lpMsgBuf;
+    /*LPVOID lpMsgBuf;
     std::string win32Error;
     if (FormatMessageA( 
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -114,7 +112,7 @@ dlerror ()
         win32Error = (LPSTR)lpMsgBuf;
     LocalFree(lpMsgBuf);
     return win32Error;*/
-  return "NOT SUPPORTED";
+	return "NOT SUPPORTED";
 }
 //#endif
 
@@ -169,5 +167,4 @@ Plugin::geterror (void)
     return e;
 }
 
-}
-OIIO_NAMESPACE_EXIT
+OIIO_NAMESPACE_END

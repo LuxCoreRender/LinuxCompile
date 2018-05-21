@@ -379,14 +379,14 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage openimageio oiio*.tar.gz
 
 	echo " * Patching OpenImageIO"
-	cp -vf $DIST/oiio-1.3.14-plugin.cpp src/libutil/plugin.cpp
-	cp -vf $DIST/oiio-1.3.14-CMakeLists.txt CMakeLists.txt
-	cp -vf $DIST/oiio-1.3.14-externalpackages.cmake src/cmake/externalpackages.cmake
-	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET VERBOSE=0 \
-	EMBEDPLUGINS=1 USE_OPENGL=0 USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
-	USE_FIELD3D=0 USE_OCIO=0 USE_OPENCV=0 USE_PYTHON=0 \
-	BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 \
-	STOP_ON_WARNING=0 ; then
+	cp -vf $DIST/oiio-1.8.11-plugin.cpp src/libutil/plugin.cpp
+	cp -vf $DIST/oiio-1.8.11-externalpackages.cmake src/cmake/externalpackages.cmake
+	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET ILMBASE_HOME=$TARGET \
+		VERBOSE=0 USE_FFMPEG=0 \
+		EMBEDPLUGINS=1 USE_OPENGL=0 USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
+		USE_FIELD3D=0 USE_OCIO=0 USE_OPENCV=0 USE_PYTHON=0 \
+		BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 \
+		STOP_ON_WARNING=0 ; then
 		echo " * openimageio compiled successfully"
 	else
 		echo " !!! openimageio compilation failed"
@@ -417,14 +417,14 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		QT_PLATFORM="-platform linux-g++-32"
 	fi
 	if ! echo 'yes' | ./configure -prefix $TARGET $QT_PLATFORM \
-	-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
-	-no-ssse3 -fast -no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support \
-	-no-xmlpatterns -no-multimedia -no-audio-backend -no-phonon -no-phonon-backend \
-	-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -qt-zlib -no-gif \
-	-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
-	-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
-	-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
-	-I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
+		-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
+		-no-ssse3 -fast -no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support \
+		-no-xmlpatterns -no-multimedia -no-audio-backend -no-phonon -no-phonon-backend \
+		-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -qt-zlib -no-gif \
+		-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
+		-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
+		-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
+		-I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
 		echo " !!! Qt configuration failed"
 		exit 1
 	fi
