@@ -221,7 +221,7 @@ fi
 # STAGE 1.1 -- Boost
 NEXT=1.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage boost boost*.tar.bz2
+	begin_stage boost boost*.tar.gz
 
 	PYVER=`python3 --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
 	TOOLSET=`if [[ $CLANG ]] ; then echo clang ; else echo gcc ; fi`
@@ -234,11 +234,13 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		exit 1
 	fi
 	if ./b2 $MAKEOPTS -aq --toolset=$TOOLSET cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
-	$CONFIGOPTS --prefix=$TARGET --layout=system --with-date_time --with-filesystem \
-	--with-iostreams --with-locale --with-program_options --with-python --with-regex \
-	--with-serialization --with-system --with-thread --with-chrono \
-	threading=multi link=static \
-	release install ; then
+		$CONFIGOPTS --prefix=$TARGET --layout=system --with-date_time --with-filesystem \
+		--with-iostreams --with-locale --with-program_options --with-python --with-regex \
+		--with-serialization --with-system --with-thread --with-chrono \
+		threading=multi link=static \
+		release install ; then
+		# Fix boost python lib name
+		mv $TARGET/lib/libboost_python*.a $TARGET/lib/libboost_python.a
 		echo " * Boost compiled and installed successfully"
 	else
 		echo " !!! Boost compilation failed"
