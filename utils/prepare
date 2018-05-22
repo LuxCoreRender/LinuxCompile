@@ -74,10 +74,10 @@ if [[ ! -e $TARGET/lib/libstdc++.a ]] ; then
 	echo " * Library symlink is missing, attempting to figure out the proper location"
 	GCCVER=`gcc -dumpversion`
 	GCCVERMAJOR=`echo $GCCVER | cut -d'.' -f1-2`
-	if STDCLIBPATH=/usr/lib/gcc/${ARCH}-pc-linux-gnu/$GCCVER/libstdc++.a && [[ -e $STDCLIBPATH ]] ; then
+	if STDCLIBPATH=/usr/lib/gcc/${ARCH}-linux-gnu/$GCCVER/libstdc++.a && [[ -e $STDCLIBPATH ]] ; then
 		symlink_libstdc $STDCLIBPATH
 	elif STDCLIBPATH=/usr/lib/gcc/${ARCH}-linux-gnu/$GCCVERMAJOR/libstdc++.a && [[ -e $STDCLIBPATH ]] ; then
-		symlink_libstdc $STDCLIBPATH
+	    symlink_libstdc $STDCLIBPATH
 	else
         echo " !!! Unable to find libstdc++.a at known locations."
         echo " !!! You have to find the library manually and symlink"
