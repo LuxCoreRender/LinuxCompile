@@ -40,7 +40,7 @@ function verify_hash() {
 
 echo " * Checking distfiles"
 FILE=linux_deps.tgz
-HASH=d4874808fd9dad7787fc10587e420233528ad027
+HASH=28a73a9c8968a346a53bada388f5f6b2243d7fca
 URL=https://github.com/LuxCoreRender/LinuxCompileDeps/releases/download/luxcorerender_v2.1alpha1/linux_deps.tgz
 if [ ! -f $DIST/$FILE ] ; then
 	echo " * Downloading $FILE"
