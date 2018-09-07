@@ -47,4 +47,3 @@ else
     echo " * Installed successfully to $TARGET/$LUX_TAG"
     echo " * DONE"
 fi
-

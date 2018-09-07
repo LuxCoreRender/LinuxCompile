@@ -67,7 +67,7 @@ TARGET="$2"
 WORK="$3"
 DIST="$4"
 LUX_TAG="$5"
-PAUSE=5
+PAUSE=1
 
 if [[ ! -d "$1" ]] ; then
 	echo
@@ -233,14 +233,16 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo " !!! Boost bootstrap failed"
 		exit 1
 	fi
+	
 	if ./b2 $MAKEOPTS -aq --toolset=$TOOLSET cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
 		$CONFIGOPTS --prefix=$TARGET --layout=system --with-date_time --with-filesystem \
 		--with-iostreams --with-locale --with-program_options --with-python --with-regex \
 		--with-serialization --with-system --with-thread --with-chrono \
 		threading=multi link=static \
 		release install ; then
-		# Fix boost python lib name
+		# Fix boost python lib names
 		mv $TARGET/lib/libboost_python*.a $TARGET/lib/libboost_python.a
+		mv $TARGET/lib/libboost_numpy*.a $TARGET/lib/libboost_numpy.a
 		echo " * Boost compiled and installed successfully"
 	else
 		echo " !!! Boost compilation failed"
