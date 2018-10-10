@@ -120,7 +120,7 @@ unset CC CXX
 if [[ -e "${ROOT}"/use_clang ]] ; then
 	echo " * Using Clang compiler"
 	CLANG=1
-	LUXCORE_FLAGS="-mtune=generic -mmmx -msse -msse2 -O3 -pipe -fvisibility-inlines-hidden -fno-stack-protector -fPIC -fopenmp=libomp"
+	LUXCORE_FLAGS="-mtune=generic -mno-ssse3 -mmmx -msse -msse2 -O3 -pipe -fvisibility-inlines-hidden -fno-stack-protector -fPIC -fopenmp=libomp"
 	export CC="clang"
 	export CXX="clang++"
 	export LDFLAGS="${LDFLAGS} -O3 -Wl,-plugin,/usr/lib64/LLVMgold.so -L${TARGET}/lib -static-libgcc -static-libstdc++"
