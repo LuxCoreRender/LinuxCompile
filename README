@@ -33,7 +33,9 @@ by the user prior to compilation. Among them are:
    or "sudo pip install pyinstaller"
  - PySide, it can usually be installed with a "sudo pip3 install PySide"
    or "sudo pip install PySide". Ubuntu may require a
-   "sudo apt-get install python3-pyside".
+   "sudo apt-get install python3-pyside"
+ - Python NumPy, it can usually be installed with on Ubuntu with a
+   "sudo pip3 install python3-numpy"
 
 Running build script for the first time will download dependencies
 sources into the distfiles dir, taking about 300 MB of disk space.
