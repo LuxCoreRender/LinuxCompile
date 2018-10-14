@@ -224,17 +224,16 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage boost boost*.tar.gz
 
 	PYVER=`python3 --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
-	TOOLSET=`if [[ $CLANG ]] ; then echo clang ; else echo gcc ; fi`
 	echo " * Compiling boost for python-${PYVER}"
 	sleep 1
-	if ! ./bootstrap.sh --with-toolset=$TOOLSET --without-icu --prefix=$TARGET/boost \
+	if ! ./bootstrap.sh --without-icu --prefix=$TARGET/boost \
 	--with-python=/usr/bin/python${PYVER} \
 	--with-python-root=`python${PYVER} -c "import sys; print(sys.prefix)"` ; then
 		echo " !!! Boost bootstrap failed"
 		exit 1
 	fi
 	
-	if ./b2 $MAKEOPTS -aq --toolset=$TOOLSET cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
+	if ./b2 $MAKEOPTS -aq cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
 		$CONFIGOPTS --prefix=$TARGET --layout=system --with-date_time --with-filesystem \
 		--with-iostreams --with-locale --with-program_options --with-python --with-regex \
 		--with-serialization --with-system --with-thread --with-chrono \
