@@ -417,29 +417,29 @@ NEXT=3.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage Qt qt-everywhere-opensource*.tar.gz
 
-	if echo $TARGET | grep -q '\-32' ; then
-		QT_PLATFORM="-platform linux-g++-32"
-	fi
-	if ! echo 'yes' | ./configure -prefix $TARGET $QT_PLATFORM \
-		-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
-		-no-ssse3 -fast -no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support \
-		-no-xmlpatterns -no-multimedia -no-audio-backend -no-phonon -no-phonon-backend \
-		-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -qt-zlib -no-gif \
-		-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
-		-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
-		-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
-		-I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
-		echo " !!! Qt configuration failed"
-		exit 1
-	fi
-	sleep $PAUSE
-	COMMAND=`which gmake 2>/dev/null || which make 2>/dev/null`
-	if $COMMAND $MAKEOPTS && sleep $PAUSE && $COMMAND install ; then
-		echo " * Qt compiled and installed successfully"
-	else
-		echo " !!! Qt compilation failed"
-		exit 1
-	fi
+#	if echo $TARGET | grep -q '\-32' ; then
+#		QT_PLATFORM="-platform linux-g++-32"
+#	fi
+#	if ! echo 'yes' | ./configure -prefix $TARGET $QT_PLATFORM \
+#		-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
+#		-no-ssse3 -fast -no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support \
+#		-no-xmlpatterns -no-multimedia -no-audio-backend -no-phonon -no-phonon-backend \
+#		-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -qt-zlib -no-gif \
+#		-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
+#		-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
+#		-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
+#		-I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
+#		echo " !!! Qt configuration failed"
+#		exit 1
+#	fi
+#	sleep $PAUSE
+#	COMMAND=`which gmake 2>/dev/null || which make 2>/dev/null`
+#	if $COMMAND $MAKEOPTS && sleep $PAUSE && $COMMAND install ; then
+#		echo " * Qt compiled and installed successfully"
+#	else
+#		echo " !!! Qt compilation failed"
+#		exit 1
+#	fi
 
 	complete_stage $NEXT
 fi
