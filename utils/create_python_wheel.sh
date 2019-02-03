@@ -28,7 +28,7 @@ cp $LUX_TAG/AUTHORS.txt $TARGET/$LUX_TAG-wheel/AUTHORS.txt
 cp $LUX_TAG/COPYING.txt $TARGET/$LUX_TAG-wheel/LICENSE.txt
 
 cp $LUX_TAG/lib/*.so $TARGET/$LUX_TAG-wheel/pyluxcore
-cp $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/$LUX_TAG-wheel/pyluxcore
+cp $TARGET/lib/libOpenImageDenoise.so.0 $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/$LUX_TAG-wheel/pyluxcore
 
 
 cd $TARGET/$LUX_TAG-wheel

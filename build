@@ -53,8 +53,9 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 2.1 - openimageio"
 	echo "	Stage 3   - Qt"
 	echo "	Stage 4.1 - Embree"
-	echo "	Stage 4.2 - C-blosc"
-	echo "	Stage 4.3 - TBB"
+	echo "	Stage 4.2 - Oidn"
+	echo "	Stage 4.3 - C-blosc"
+	echo "	Stage 4.4 - TBB"
 	echo "	Stage 5   - luxcore"
 	echo "	Stage 6   - luxmark (optional)"
 	echo
@@ -357,7 +358,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 fi
 
 # STAGE 1.7 -- OpenEXR
-NEXT=1.8
+NEXT=2.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage openexr openexr*.tar.gz
 
@@ -413,7 +414,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 fi
 
 # STAGE 3 -- Qt
-NEXT=3.1
+NEXT=4.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage Qt qt-everywhere-opensource*.tar.gz
 
@@ -445,7 +446,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 fi
 
 # STAGE 4.1 -- Embree
-NEXT=4.1
+NEXT=4.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage Embree embree-*.tar.gz
 
@@ -462,8 +463,26 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	complete_stage $NEXT
 fi
 
-# STAGE 4.2 -- C-blosc
+# STAGE 4.2 -- Oidn
 NEXT=4.3
+if [[ $STAGE && $STAGE < $NEXT ]] ; then
+	begin_stage Oidn oidn-*.tar.gz
+
+	cp -v ${DIST}/oidn-install.sh .
+
+    sleep 1
+    if ./oidn-install.sh $TARGET ; then
+        echo " * Oidn library and headers installed successfully"
+    else
+        echo " !!! Oidn library and headers installation failed"
+        exit 1
+    fi
+
+	complete_stage $NEXT
+fi
+
+# STAGE 4.3 -- C-blosc
+NEXT=4.4
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage C-blosc c-blosc-*.tgz
 
@@ -480,7 +499,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	complete_stage $NEXT
 fi
 
-# STAGE 4.3 -- TBB
+# STAGE 4.4 -- TBB
 NEXT=5
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage TBB tbb*_lin.tgz
