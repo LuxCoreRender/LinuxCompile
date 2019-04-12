@@ -400,10 +400,10 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	echo " * Installing openimageio library and headers"
 	sleep $PAUSE
 	if cp -vr dist/linux*/* $TARGET && cd $TARGET/lib && \
-	mv -v libOpenImageIO.a libOpenImageIOBase.a && \
-	ar -rcT libOpenImageIO.a libOpenImageIOBase.a libpng.a libjpeg.a libtiff.a libHalf.a \
-	libIex.a libIexMath.a libIlmImf.a libIlmThread.a libImath.a libz.a libbz2.a liblzma.a \
-	libfreetype.a ; then
+			mv -v libOpenImageIO.a libOpenImageIOBase.a && \
+			ar -rcT libOpenImageIO.a libOpenImageIOBase.a libpng.a libjpeg.a libtiff.a libHalf.a \
+			libIex.a libIexMath.a libIlmImf.a libIlmThread.a libImath.a libz.a libbz2.a liblzma.a \
+			libfreetype.a ; then
         echo " * openimageio installed successfully"
     else
         echo " !!! openimageio installation failed"
@@ -416,33 +416,41 @@ fi
 # STAGE 3 -- Qt
 NEXT=4.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage Qt qt-everywhere-opensource*.tar.gz
 
-#	if echo $TARGET | grep -q '\-32' ; then
-#		QT_PLATFORM="-platform linux-g++-32"
-#	fi
-#	if ! echo 'yes' | ./configure -prefix $TARGET $QT_PLATFORM \
-#		-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
-#		-no-ssse3 -fast -no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support \
-#		-no-xmlpatterns -no-multimedia -no-audio-backend -no-phonon -no-phonon-backend \
-#		-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -qt-zlib -no-gif \
-#		-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
-#		-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
-#		-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
-#		-I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
-#		echo " !!! Qt configuration failed"
-#		exit 1
-#	fi
-#	sleep $PAUSE
-#	COMMAND=`which gmake 2>/dev/null || which make 2>/dev/null`
-#	if $COMMAND $MAKEOPTS && sleep $PAUSE && $COMMAND install ; then
-#		echo " * Qt compiled and installed successfully"
-#	else
-#		echo " !!! Qt compilation failed"
-#		exit 1
-#	fi
+	if [[ ! -d "LuxMark" ]] ; then
+		begin_stage Qt qt-everywhere-opensource*.tar.gz
 
-	complete_stage $NEXT
+		echo
+		echo "LuxMark src not available, skipping Qt stage"
+
+		complete_stage $NEXT
+	else
+		begin_stage Qt qt-everywhere-opensource*.tar.gz
+
+		if ! echo 'yes' | ./configure -prefix $TARGET $QT_PLATFORM \
+			-prefix-install -release -opensource -static -reduce-relocations -no-opengl \
+			-no-ssse3 -fast -no-3dnow -no-sse2 -no-exceptions -stl -no-qt3support \
+			-no-xmlpatterns -no-multimedia -no-audio-backend -no-phonon -no-phonon-backend \
+			-no-webkit -no-svg -no-javascript-jit -no-script -no-scripttools -qt-zlib -no-gif \
+			-system-libtiff -system-libpng -no-libmng -system-libjpeg -no-openssl -optimized-qmake \
+			-no-nis -no-cups -no-iconv -no-pch -no-dbus -no-mitshm -gtkstyle -no-glib \
+			-make libs -make tools -nomake examples -nomake demos -nomake docs -nomake translations \
+			-I${TARGET}/include/libpng -L${TARGET}/lib -lpng -ltiff -llzma -lbz2 ; then
+			echo " !!! Qt configuration failed"
+			exit 1
+		fi
+
+		sleep $PAUSE
+		COMMAND=`which gmake 2>/dev/null || which make 2>/dev/null`
+		if $COMMAND $MAKEOPTS && sleep $PAUSE && $COMMAND install ; then
+			echo " * Qt compiled and installed successfully"
+		else
+			echo " !!! Qt compilation failed"
+			exit 1
+		fi
+
+		complete_stage $NEXT
+	fi
 fi
 
 # STAGE 4.1 -- Embree
@@ -602,7 +610,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 		echo " * Configuring LuxMark"
 		if ! cmake -G "Unix Makefiles" -Wno-dev \
-		-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake . ; then
+				-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake . ; then
 			echo " !!! LuxMark configuration failed"
 			exit 1
 		fi
