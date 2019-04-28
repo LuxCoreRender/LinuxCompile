@@ -108,7 +108,7 @@ LUXCORE_FLAGS=`echo $7 | sed s/'-fvisibility=hidden'//`" -pthread -lrt"
 # platform specs
 export CHOST="$8"
 export CBUILD=$CHOST
-export LDFLAGS="-L${TARGET}/lib -static-libgcc -static-libstdc++"
+export LDFLAGS="-static-libgcc -static-libstdc++"
 CONFIGOPTS="--build=$CBUILD --host=$CHOST"
 export CFLAGS="${GENERIC_FLAGS}"
 export CXXFLAGS="${CFLAGS}"
@@ -530,30 +530,14 @@ NEXT=6
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	echo -ne "\033]0;LuxCore stage\007"
 
-	export HOME=${TARGET}
-	export PATH=${TARGET}/bin/:$PATH
-	export CFLAGS="${LUXCORE_FLAGS}"
-	export CXXFLAGS="${CFLAGS}"
-	export LD_LIBRARY_PATH=${TARGET}/lib/:$LD_LIBRARY_PATH
-	export CMAKE_INCLUDE_PATH=$TARGET/include
-	export CMAKE_LIBRARY_PATH=$TARGET/lib
-	export CMAKE_PREFIX_PATH=$TARGET
-	export BOOST_ROOT=$TARGET
-	export BOOST_INCLUDEDIR=$TARGET/include
-	export BOOST_LIBRARY_DIRS=$TARGET/lib
-
-	FLAGS_ESC=`$ROOT/utils/replace "$LUXCORE_FLAGS"`
-	TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
-
 	cd $ROOT/$LUX_TAG
 
 	echo " * Configuring $LUXCORE_TARGET"
-	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL $BUILD_LUXCORE_DLL -Wno-dev \
-	-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake \
-	-D EMBREE_SEARCH_PATH:STRING=$TARGET \
-	-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
-	-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
-	-D PYTHON_INCLUDE_DIRS:PATH="$PYTHON_INCLUDE" . ; then
+	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL $BUILD_LUXCORE_DLL \
+			-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake \
+			-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
+			-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
+			-D PYTHON_INCLUDE_DIRS:PATH="$PYTHON_INCLUDE" . ; then
 		echo " !!! $LUXCORE_TARGET configuration failed"
 		exit 1
 	fi
