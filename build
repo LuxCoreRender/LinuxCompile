@@ -511,7 +511,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	cd $ROOT/$LUX_TAG
 
 	echo " * Configuring $LUXCORE_TARGET"
-	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL $BUILD_LUXCORE_DLL \
+	if ! cmake -G "Unix Makefiles" $DISABLE_OPENCL $BUILD_LUXCORE_DLL -Wno-dev \
 			-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake \
 			-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
 			-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
@@ -552,27 +552,12 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		echo
 		echo "LuxMark src not available, skipping the stage"
 	else
-		export HOME=LuxMark
-		export PATH=LuxMark/bin/:$PATH
-		export CFLAGS="${LUXCORE_FLAGS}"
-		export CXXFLAGS="${CFLAGS}"
-		export LD_LIBRARY_PATH=LuxMark/lib/:$LD_LIBRARY_PATH
-		export CMAKE_INCLUDE_PATH=$TARGET/include
-		export CMAKE_LIBRARY_PATH=$TARGET/lib
-		export CMAKE_PREFIX_PATH=$TARGET
-		export BOOST_ROOT=$TARGET
-		export BOOST_INCLUDEDIR=$TARGET/include
-		export BOOST_LIBRARY_DIRS=$TARGET/lib
-		export LuxRays_HOME=$ROOT/$LUX_TAG
-
-		FLAGS_ESC=`$ROOT/utils/replace "$LUXCORE_FLAGS"`
-		TARGET_ESC=`$ROOT/utils/replace "$TARGET"`
-
 		cd $ROOT/LuxMark
 
 		echo " * Configuring LuxMark"
 		if ! cmake -G "Unix Makefiles" -Wno-dev \
-				-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake . ; then
+				-D LUXMARK_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake \
+				-D LuxRays_HOME="$ROOT/$LUX_TAG" . ; then
 			echo " !!! LuxMark configuration failed"
 			exit 1
 		fi
