@@ -43,7 +43,7 @@ if echo $LUX_TAG | grep -iq 'sdk' ; then
 	cp $LUX_TAG/include/luxrays/utils/utils.h $TARGET/$LUX_TAG/include/luxrays/utils
 
 	mkdir $TARGET/$LUX_TAG/include/luxcore
-	cp $LUX_TAG/include/luxcore/cfg.h $TARGET/$LUX_TAG/include/luxcore
+	cp $LUX_TAG/generated/include/luxcore/cfg.h $TARGET/$LUX_TAG/include/luxcore
 	cp $LUX_TAG/include/luxcore/luxcore.h $TARGET/$LUX_TAG/include/luxcore
 
 	cp -r $LUX_TAG/samples $TARGET/$LUX_TAG
