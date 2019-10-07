@@ -114,6 +114,29 @@ if [[ ! -e $TARGET/lib/$PYLIB ]] ; then
 fi
 echo " * Done checking python"
 
+echo " * Checking LuxMark scenes"
+if [[ -d "LuxMark" ]] ; then
+	FILE=scenes.tgz
+	HASH=5db2cedea47d2f7758ecaa6802632f598cfd4ab7
+	URL=https://github.com/LuxCoreRender/LuxMark/releases/download/luxmark_v4.0alpha0/scenes.tgz
+	if [ ! -f $DIST/$FILE ] ; then
+		echo " * Downloading $FILE"
+		wget -O $DIST/$FILE $URL
+	fi
+	verify_hash $HASH "$DIST/$FILE"
+	if [ $? != 0 ] ; then
+		echo " * Resume downloading $FILE"
+		wget -c -O $DIST/$FILE $URL
+
+		verify_hash $HASH "$DIST/$FILE"
+		if [ $? != 0 ] ; then
+			echo " !!! Hash mismatch for $FILE"
+			exit 1
+		fi
+	fi
+fi
+echo " * Done LuxMark scenes"
+
 # updating target link
 #ln -fs $TARGET ../target
 

@@ -418,15 +418,15 @@ NEXT=4.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage Qt qt-*.tar.gz
 
-	cp -v ${DIST}/qt-install.sh .
-
-    sleep 1
-    if ./qt-install.sh $TARGET ; then
-        echo " * Qt library and headers installed successfully"
-    else
-        echo " !!! Qt library and headers installation failed"
-        exit 1
-    fi
+#	cp -v ${DIST}/qt-install.sh .
+#
+#    sleep 1
+#    if ./qt-install.sh $TARGET ; then
+#        echo " * Qt library and headers installed successfully"
+#    else
+#        echo " !!! Qt library and headers installation failed"
+#        exit 1
+#    fi
 
 	complete_stage $NEXT
 fi

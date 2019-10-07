@@ -41,7 +41,7 @@ if ! $ROOT/build "$ROOT" "$TARGET" "$WORK" "$DIST" "$LUX_TAG" "$GENERIC_FLAGS" \
     exit 1
 fi
 
-if ! $ROOT/utils/install "$TARGET" "$LUX_TAG" ; then
+if ! $ROOT/utils/install "$TARGET" "$LUX_TAG" "$DIST"; then
     echo " * Installation FAILED"
 else
     echo " * Installed successfully to $TARGET/$LUX_TAG"

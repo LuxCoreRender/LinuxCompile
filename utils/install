@@ -7,6 +7,7 @@ fi
 
 TARGET=$1
 LUX_TAG=$2
+DIST=$3
 
 # Check if I have to build the stand alone version or the SDK version
 if echo $LUX_TAG | grep -iq 'sdk' ; then
@@ -89,6 +90,37 @@ else
 
 	cd $TARGET
 	tar -cvjf ${LUX_TAG}.tar.bz2 $LUX_TAG
+	cd ..
+
+	echo
+fi
+
+# Check if I have to pack LuxMark too
+if [[ -d "LuxMark" ]] ; then
+	echo
+	echo " * Installing LuxMark at $TARGET/luxmark"
+
+	rm -rf $TARGET/luxmark
+	mkdir $TARGET/luxmark
+	mkdir $TARGET/luxmark/lib
+
+	cp $LUX_TAG/bin/luxcoreui $TARGET/luxmark
+	cp $TARGET/lib/libOpenImageDenoise.so.0 $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/luxmark/lib
+	#cp $TARGET/qt5-v5.12.2/lib/libQt5Widgets.so $TARGET/luxmark/libQt5Widgets.so.5
+	#cp $TARGET/qt5-v5.12.2/lib/libQt5Network.so $TARGET/luxmark/libQt5Network.so.5
+	#cp $TARGET/qt5-v5.12.2/lib/libQt5Gui.so $TARGET/luxmark/libQt5Gui.so.5
+	#cp $TARGET/qt5-v5.12.2/lib/libQt5Core.so $TARGET/luxmark/libQt5Core.so.5
+
+	cp LuxMark/README.md $TARGET/luxmark
+	cp LuxMark/COPYING.txt $TARGET/luxmark
+	cp LuxMark/AUTHORS.txt $TARGET/luxmark
+	cp LuxMark/bin/luxmark $TARGET/luxmark/luxmark.bin
+	cp $DIST/luxmark.start $TARGET/luxmark/luxmark
+
+	tar zxf $DIST/scenes.tgz -C $TARGET/luxmark
+
+	cd $TARGET
+	tar cvjf luxmark.tar.bz2 luxmark
 	cd ..
 
 	echo
