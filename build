@@ -406,7 +406,6 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 			libIex.a libIexMath.a libIlmImf.a libIlmThread.a libImath.a libz.a libbz2.a liblzma.a \
 			libfreetype.a ; then
         echo " * openimageio installed successfully"
-		exit 1
     else
         echo " !!! openimageio installation failed"
         exit 1
