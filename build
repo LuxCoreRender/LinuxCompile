@@ -386,6 +386,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	echo " * Patching OpenImageIO"
 	cp -vf $DIST/oiio-1.8.11-plugin.cpp src/libutil/plugin.cpp
 	cp -vf $DIST/oiio-1.8.11-externalpackages.cmake src/cmake/externalpackages.cmake
+	cp -vf $DIST/oiio-1.8.11-filesystem.cpp src/libutil/filesystem.cpp
 	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET ILMBASE_HOME=$TARGET \
 		VERBOSE=0 USE_FFMPEG=0 \
 		EMBEDPLUGINS=1 USE_OPENGL=0 USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
@@ -405,6 +406,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 			libIex.a libIexMath.a libIlmImf.a libIlmThread.a libImath.a libz.a libbz2.a liblzma.a \
 			libfreetype.a ; then
         echo " * openimageio installed successfully"
+		exit 1
     else
         echo " !!! openimageio installation failed"
         exit 1
