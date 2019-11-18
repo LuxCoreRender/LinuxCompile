@@ -224,6 +224,10 @@ NEXT=1.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage boost boost*.tar.gz
 
+	echo " * Patching Boost"
+	# From https://github.com/boostorg/python/pull/218
+	cp -vf $DIST/boost-1.67-numpy.cpp libs/python/src/numpy/numpy.cpp
+
 	PYVER=`python3 --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
 	TOOLSET=`if [[ $CLANG ]] ; then echo clang ; else echo gcc ; fi`
 	echo " * Compiling boost for python-${PYVER}"
