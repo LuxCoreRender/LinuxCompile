@@ -8,4 +8,4 @@ mkdir -p $LIBRARY_INSTALL_DIR
 
 cp -vr include/*.h $INCLUDE_INSTALL_DIR
 
-cp -vr lib/lib* $LIBRARY_INSTALL_DIR
+cp -vr lib/lib*.a $LIBRARY_INSTALL_DIR
