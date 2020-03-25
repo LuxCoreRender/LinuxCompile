@@ -5,6 +5,37 @@ LuxCoreRender Static Compilation Environment
 This collection of scripts is intended for automatic creation of build
 environment and Lux compilation with statically linked dependency libs.
 
+First Run:
+---------
+On a recent Ubuntu (e.g. 19.10), you can compile LuxCore with one command:
+./first_run.sh
+
+Updating:
+--------
+To update to the latest sources, use standard git commands:
+
+cd LuxCore-opencl
+git pull
+# Go back to LinuxCompile folder and recompile the last stage (5)
+cd ..
+./build-64-sse2 LuxCore-opencl 5
+
+Recompiling after Code Modifications:
+------------------------------------
+
+In case you edit any source files and want to recompile quickly, go to 
+the LuxCore sources directory and run make:
+
+cd LuxCore-opencl
+make -j 8
+(-j <n> specifies number of threads for the compilation process)
+
+The compiled binaries are in LuxCore-opencl/bin/, the compiled libraries 
+(e.g. pyluxcore.so) are in LuxCore-opencl/lib/
+
+Further Details
+===============
+
 Layout:
 ------
  - build
