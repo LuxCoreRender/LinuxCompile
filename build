@@ -48,8 +48,7 @@ if [[ ! ${8} ]] ; then
 	echo "	Stage 1.3 - tiff"
 	echo "	Stage 1.4 - png"
 	echo "	Stage 1.5 - freetype"
-	echo "	Stage 1.6 - ilmbase"
-	echo "	Stage 1.7 - openexr"
+	echo "	Stage 1.6 - openexr"
 	echo "	Stage 2.1 - openimageio"
 	echo "	Stage 3   - Qt"
 	echo "	Stage 4.1 - Embree"
@@ -102,15 +101,14 @@ else
 fi
 
 # build flags
-GENERIC_FLAGS="$6"
-LUXCORE_FLAGS=`echo $7 | sed s/'-fvisibility=hidden'//`" -pthread -lrt"
+LUXCORE_FLAGS=`echo $6 | sed s/'-fvisibility=hidden'//`" -pthread -lrt"
 
 # platform specs
-export CHOST="$8"
+export CHOST="$7"
 export CBUILD=$CHOST
 export LDFLAGS="-static-libgcc -static-libstdc++"
 CONFIGOPTS="--build=$CBUILD --host=$CHOST"
-export CFLAGS="${GENERIC_FLAGS}"
+export CFLAGS="$6"
 export CXXFLAGS="${CFLAGS}"
 export MAKEOPTS="-j"$(( `grep processor /proc/cpuinfo | wc -l` + 1))
 export TMP="$WORK"
@@ -186,7 +184,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage bzip2 bzip2*.tar.gz
 
 	echo " * Patching bzip2 Makefile for -fPIC support"
-	patch Makefile $DIST/bzip2-1.0.6-fpic.patch
+	patch Makefile $DIST/bzip2-1.0.8-fpic.patch
 	if make $MAKEOPTS && make install PREFIX=$TARGET ; then
 		echo " * bzip2 compiled and installed successfully"
 	else
@@ -224,22 +222,19 @@ NEXT=1.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage boost boost*.tar.gz
 
-	echo " * Patching Boost"
-	# From https://github.com/boostorg/python/pull/218
-	cp -vf $DIST/boost-1.67-numpy.cpp libs/python/src/numpy/numpy.cpp
-
 	PYVER=`python3 --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
 	TOOLSET=`if [[ $CLANG ]] ; then echo clang ; else echo gcc ; fi`
 	echo " * Compiling boost for python-${PYVER}"
 	sleep 1
+
 	if ! ./bootstrap.sh --with-toolset=$TOOLSET --without-icu --prefix=$TARGET/boost \
-	--with-python=/usr/bin/python${PYVER} \
-	--with-python-root=`python${PYVER} -c "import sys; print(sys.prefix)"` ; then
+		--with-python=/usr/bin/python${PYVER} \
+		--with-python-root=`python${PYVER} -c "import sys; print(sys.prefix)"` ; then
 		echo " !!! Boost bootstrap failed"
 		exit 1
 	fi
 	
-	if ./b2 $MAKEOPTS -aq --toolset=$TOOLSET cflags="$GENERIC_FLAGS" cxxflags="$GENERIC_FLAGS" \
+	if ./b2 $MAKEOPTS -aq --toolset=$TOOLSET cflags="$CFLAGS" cxxflags="$CXXFLAGS" \
 		$CONFIGOPTS --prefix=$TARGET --layout=system --with-date_time --with-filesystem \
 		--with-iostreams --with-locale --with-program_options --with-python --with-regex \
 		--with-serialization --with-system --with-thread --with-chrono \
@@ -262,8 +257,7 @@ NEXT=1.3
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage jpeg jpeg*.tar.gz
 
-	cp /usr/bin/libtool /usr/share/gnuconfig/config.guess \
-	/usr/share/gnuconfig/config.sub .
+	cp /usr/bin/libtool .
 	if ! ./configure $CONFIGOPTS --enable-static --prefix=$TARGET ; then
 		echo " !!! Jpeg configuration failed"
 		exit 1
@@ -303,7 +297,7 @@ fi
 # STAGE 1.4 -- PNG
 NEXT=1.5
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage png libpng*.tar.xz
+	begin_stage png libpng*.tar.gz
 
 	# --with-libpng-prefix=lux_
 	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
@@ -341,11 +335,16 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	complete_stage $NEXT
 fi
 
-# STAGE 1.6 -- IlmBase
-NEXT=1.7
+# STAGE 1.6 -- OpenEXR
+NEXT=2.1
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage ilmbase ilmbase*.tar.gz
+	begin_stage openexr openexr*.tar.gz
 
+	cd IlmBase
+	if ! ./bootstrap ; then
+		echo " !!! ilmbase bootstrap failed"
+		exit 1
+	fi
 	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET ; then
 		echo " !!! ilmbase configuration failed"
 		exit 1
@@ -358,16 +357,12 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 		exit 1
 	fi
 
-	complete_stage $NEXT
-fi
-
-# STAGE 1.7 -- OpenEXR
-NEXT=2.1
-if [[ $STAGE && $STAGE < $NEXT ]] ; then
-	begin_stage openexr openexr*.tar.gz
-
-	if ! ./configure --enable-static --disable-shared --with-ilmbase-prefix=$TARGET \
-	$CONFIGOPTS --prefix=$TARGET ; then
+	cd ../OpenEXR
+	if ! ./bootstrap ; then
+		echo " !!! openexr bootstrap failed"
+		exit 1
+	fi
+	if ! ./configure --enable-static --disable-shared $CONFIGOPTS --prefix=$TARGET --with-ilmbase-prefix=$TARGET ; then
 		echo " !!! openexr configuration failed"
 		exit 1
 	fi
@@ -388,12 +383,11 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage openimageio oiio*.tar.gz
 
 	echo " * Patching OpenImageIO"
-	cp -vf $DIST/oiio-1.8.11-plugin.cpp src/libutil/plugin.cpp
-	cp -vf $DIST/oiio-1.8.11-externalpackages.cmake src/cmake/externalpackages.cmake
-	cp -vf $DIST/oiio-1.8.11-filesystem.cpp src/libutil/filesystem.cpp
+	cp -vf $DIST/oiio-1.8.13-plugin.cpp src/libutil/plugin.cpp
+
 	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET ILMBASE_HOME=$TARGET \
-		VERBOSE=0 USE_FFMPEG=0 \
-		EMBEDPLUGINS=1 USE_OPENGL=0 USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
+		VERBOSE=0 USE_FFMPEG=0 EMBEDPLUGINS=1 \
+		USE_OPENGL=0 USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
 		USE_FIELD3D=0 USE_OCIO=0 USE_OPENCV=0 USE_PYTHON=0 \
 		BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 \
 		STOP_ON_WARNING=0 ; then

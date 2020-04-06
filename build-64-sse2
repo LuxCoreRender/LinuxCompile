@@ -24,8 +24,8 @@ fi
 LUX_TAG="${1%/}"
 STAGE=$2
 
-GENERIC_FLAGS="-w -mtune=generic -mno-ssse3 -std=gnu++98 -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
-LUXCORE_FLAGS="-std=c++11 -mtune=generic -mno-ssse3  -std=gnu++98 -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
+GENERIC_FLAGS="-w -mtune=generic -mno-ssse3 -mmmx -msse -msse2 -O2 -pipe -mfpmath=sse -fPIC"
+LUXCORE_FLAGS="-std=c++11 -mtune=generic -mno-ssse3 -static-libgcc -mmmx -msse -msse2 -O3 -pipe \
           -mfpmath=sse -fvisibility=hidden -fvisibility-inlines-hidden \
           -ftree-vectorize -fno-math-errno -fno-signed-zeros -fno-trapping-math \
           -fassociative-math -fno-rounding-math -fno-signaling-nans \

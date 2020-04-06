@@ -65,7 +65,7 @@ Plugin::plugin_extension (void)
 #endif
 }
 
-//#if defined(_WIN32)
+#if defined(_WIN32)
 
 // Dummy values
 #define RTLD_LAZY 0
@@ -75,8 +75,7 @@ Plugin::plugin_extension (void)
 Handle
 dlopen (const char *plugin_filename, int)
 {
-    //return LoadLibrary (plugin_filename);
-	return NULL;
+    return LoadLibrary (plugin_filename);
 }
 
 
@@ -84,8 +83,7 @@ dlopen (const char *plugin_filename, int)
 bool
 dlclose (Handle plugin_handle)
 {
-    //return FreeLibrary ((HMODULE)plugin_handle) != 0;
-	return false;
+    return FreeLibrary ((HMODULE)plugin_handle) != 0;
 }
 
 
@@ -93,8 +91,7 @@ dlclose (Handle plugin_handle)
 void *
 dlsym (Handle plugin_handle, const char *symbol_name)
 {
-    //return GetProcAddress ((HMODULE)plugin_handle, symbol_name);
-	return NULL;
+    return GetProcAddress ((HMODULE)plugin_handle, symbol_name);
 }
 
 
@@ -102,7 +99,7 @@ dlsym (Handle plugin_handle, const char *symbol_name)
 std::string
 dlerror ()
 {
-    /*LPVOID lpMsgBuf;
+    LPVOID lpMsgBuf;
     std::string win32Error;
     if (FormatMessageA( 
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -111,23 +108,23 @@ dlerror ()
         (LPSTR) &lpMsgBuf, 0, NULL))
         win32Error = (LPSTR)lpMsgBuf;
     LocalFree(lpMsgBuf);
-    return win32Error;*/
-	return "NOT SUPPORTED";
+    return win32Error;
 }
-//#endif
+#endif
 
 Handle
 Plugin::open (const char *plugin_filename, bool global)
 {
-    lock_guard guard (plugin_mutex);
-    last_error.clear ();
-    int mode = RTLD_LAZY;
-    if (global)
-        mode |= RTLD_GLOBAL;
-    Handle h = dlopen (plugin_filename, mode);
-    if (!h)
-        last_error = dlerror();
-    return h;
+//    lock_guard guard (plugin_mutex);
+//    last_error.clear ();
+//    int mode = RTLD_LAZY;
+//    if (global)
+//        mode |= RTLD_GLOBAL;
+//    Handle h = dlopen (plugin_filename, mode);
+//    if (!h)
+//        last_error = dlerror();
+//    return h;
+	return NULL;
 }
 
 
@@ -135,13 +132,14 @@ Plugin::open (const char *plugin_filename, bool global)
 bool
 Plugin::close (Handle plugin_handle)
 {
-    lock_guard guard (plugin_mutex);
-    last_error.clear ();
-    if (dlclose (plugin_handle)) {
-        last_error = dlerror();
-        return false;
-    }
-    return true;
+//    lock_guard guard (plugin_mutex);
+//    last_error.clear ();
+//    if (dlclose (plugin_handle)) {
+//        last_error = dlerror();
+//        return false;
+//    }
+//    return true;
+	return false;
 }
 
 
@@ -149,22 +147,24 @@ Plugin::close (Handle plugin_handle)
 void *
 Plugin::getsym (Handle plugin_handle, const char *symbol_name)
 {
-    lock_guard guard (plugin_mutex);
-    last_error.clear ();
-    void *s = dlsym (plugin_handle, symbol_name);
-    if (!s)
-        last_error = dlerror();
-    return s;
+//    lock_guard guard (plugin_mutex);
+//    last_error.clear ();
+//    void *s = dlsym (plugin_handle, symbol_name);
+//    if (!s)
+//        last_error = dlerror();
+//    return s;
+	return NULL;
 }
 
 
 std::string
 Plugin::geterror (void)
 {
-    lock_guard guard (plugin_mutex);
-    std::string e = last_error;
-    last_error.clear ();
-    return e;
+//    lock_guard guard (plugin_mutex);
+//    std::string e = last_error;
+//    last_error.clear ();
+//    return e;
+	return "NOT SUPPORTED";
 }
 
 OIIO_NAMESPACE_END
