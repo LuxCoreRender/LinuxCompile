@@ -384,6 +384,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 
 	echo " * Patching OpenImageIO"
 	cp -vf $DIST/oiio-1.8.13-plugin.cpp src/libutil/plugin.cpp
+	cp -vf $DIST/oiio-1.8.13-filesystem.cpp src/libutil/filesystem.cpp
 
 	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET ILMBASE_HOME=$TARGET \
 		VERBOSE=0 USE_FFMPEG=0 EMBEDPLUGINS=1 \
