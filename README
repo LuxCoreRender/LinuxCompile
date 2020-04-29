@@ -62,6 +62,7 @@ by the user prior to compilation. Among them are:
  - OpenCL library and header files (if you need OpenCL support). 
    A minimal installation is enough, for example the GPUOpen OCL SDK: 
    https://github.com/GPUOpen-LibrariesAndSDKs/OCL-SDK/releases
+ - CUDA SDK if you want to enable CUDA support
  - PyInstaller, it can usually be installed with a "sudo pip3 install pyinstaller"
    or "sudo pip install pyinstaller"
  - PySide, it can usually be installed with a "sudo pip3 install PySide"
@@ -89,11 +90,14 @@ Here is how you can do this:
 
  1. Unpack LuxCoreRender sources into the subdirectory below 'root' directory
     (where scripts are located). The subdir with Lux sources may have
-    any name, however if it contains 'opencl' then OpenCL-enabled
-    version is compiled (disabled otherwise); if it contains 'dll' then the DLL
-    version of LuxCore library is compiled; if it contains 'sdk' then the SDK
-    version of LuxCore library is compiled; if it contains 'pyluxcore' then
-    only pyluxcore target will be compiled;
+    any name, however
+	if it contains 'opencl' then OpenCL-enabled version is compiled
+	(disabled otherwise);
+	if it contains 'dll' then the DLL version of LuxCore library is compiled;
+	if it contains 'sdk' then the SDK version of LuxCore library is compiled;
+	if it contains 'pyluxcore' then only pyluxcore target will be compiled;
+	if it contains 'cuda' then OpenCL-enabled and CUDA-enabled version is
+	compiled (requires CUDA SDK).
     
     NOTE: you need git LFS extension (https://git-lfs.github.com) to clone
     LinuxCompileDeps repository. Or you can install and use
