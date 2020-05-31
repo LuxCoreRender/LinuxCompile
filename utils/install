@@ -31,15 +31,12 @@ if echo $LUX_TAG | grep -iq 'sdk' ; then
 	cp $LUX_TAG/sdk/CMakeLists.txt $TARGET/$LUX_TAG
 
 	mkdir $TARGET/$LUX_TAG/cmake
-	cp $LUX_TAG/cmake/Packages/FindOpenCL.cmake $TARGET/$LUX_TAG/cmake
 
 	mkdir $TARGET/$LUX_TAG/include
 	mkdir $TARGET/$LUX_TAG/include/luxrays
 	mkdir $TARGET/$LUX_TAG/include/luxrays/utils
 	cp -r $LUX_TAG/include/luxrays/utils/cyhair $TARGET/$LUX_TAG/include/luxrays/utils
 	cp $LUX_TAG/include/luxrays/utils/exportdefs.h $TARGET/$LUX_TAG/include/luxrays/utils
-	cp $LUX_TAG/include/luxrays/utils/ocl.h $TARGET/$LUX_TAG/include/luxrays/utils
-	cp $LUX_TAG/include/luxrays/utils/oclerror.h $TARGET/$LUX_TAG/include/luxrays/utils
 	cp $LUX_TAG/include/luxrays/utils/properties.h $TARGET/$LUX_TAG/include/luxrays/utils
 	cp $LUX_TAG/include/luxrays/utils/utils.h $TARGET/$LUX_TAG/include/luxrays/utils
 

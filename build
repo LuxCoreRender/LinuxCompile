@@ -84,21 +84,6 @@ else
 	echo " * LuxCore static enabled"
 fi
 
-# disabling OpenCL support if sources dir doesn't contains "opencl"
-if echo $LUX_TAG | grep -iq 'opencl' ; then
-	echo " * OpenCL enabled, CUDA disabled"
-	ENABLE_OPENCL="-D LUXRAYS_ENABLE_OPENCL=1"
-else
-	if echo $LUX_TAG | grep -iq 'cuda' ; then
-		echo " * OpenCL and CUDA enabled"
-		ENABLE_OPENCL="-D LUXRAYS_ENABLE_OPENCL=1"
-		ENABLE_CUDA="-D LUXRAYS_ENABLE_CUDA=1"
-	else
-		echo " * OpenCL and CUDA disabled"
-		DISABLE_OPENCL="-D LUXRAYS_DISABLE_OPENCL=1"
-	fi
-fi
-
 # compile pyluxcore target only if sources dir contains "pyluxcore"
 if echo $LUX_TAG | grep -iq 'pyluxcore' ; then
 	echo " * pyluxcore target only"
@@ -519,7 +504,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	cd $ROOT/$LUX_TAG
 
 	echo " * Configuring $LUXCORE_TARGET"
-	if ! cmake -G "Unix Makefiles" $ENABLE_OPENCL $ENABLE_CUDA $DISABLE_OPENCL $BUILD_LUXCORE_DLL -Wno-dev \
+	if ! cmake -G "Unix Makefiles" $BUILD_LUXCORE_DLL -Wno-dev \
 			-D LUXRAYS_CUSTOM_CONFIG=cmake/SpecializedConfig/Config_Linux-Static.cmake \
 			-D PYTHON_LIBRARY:FILEPATH="$PYTHON_LIB" \
 			-D PYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE" \
