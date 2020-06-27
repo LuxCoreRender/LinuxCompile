@@ -14,11 +14,11 @@ Updating:
 --------
 To update to the latest sources, use standard git commands:
 
-cd LuxCore-opencl
+cd LuxCore
 git pull
 # Go back to LinuxCompile folder and recompile the last stage (5)
 cd ..
-./build-64-sse2 LuxCore-opencl 5
+./build-64-sse2 LuxCore 5
 
 Recompiling after Code Modifications:
 ------------------------------------
@@ -26,12 +26,12 @@ Recompiling after Code Modifications:
 In case you edit any source files and want to recompile quickly, go to 
 the LuxCore sources directory and run make:
 
-cd LuxCore-opencl
+cd LuxCore
 make -j 8
 (-j <n> specifies number of threads for the compilation process)
 
-The compiled binaries are in LuxCore-opencl/bin/, the compiled libraries 
-(e.g. pyluxcore.so) are in LuxCore-opencl/lib/
+The compiled binaries are in LuxCore/bin/, the compiled libraries 
+(e.g. pyluxcore.so) are in LuxCore/lib/
 
 Further Details
 ===============
@@ -77,7 +77,7 @@ OpenCL & CUDA
 -------------
 You don't need to install OpenCL or CUDA SDK anymore. The binaries will check at
 run time if OpenCL and/or CUDA are available and enable/disable the support
-accordling.
+accordingly.
 
 Usage:
 -----
@@ -119,8 +119,7 @@ Here is how you can do this:
     'target' subdirectory.
 
  4. This step is optional. You can compile LuxMark too if you unpack the sources
-    into the subdirectory below 'root' directory named "LuxMark". Note: you have
-    to compile LuxCore with OpenCL enabled to be able to compile LuxMark.
+    into the subdirectory below 'root' directory named "LuxMark".
 
 Clang:
 -----
