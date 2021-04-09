@@ -379,6 +379,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	cp -vf $DIST/oiio-1.8.13-plugin.cpp src/libutil/plugin.cpp
 	cp -vf $DIST/oiio-1.8.13-filesystem.cpp src/libutil/filesystem.cpp
 	cp -vf $DIST/oiio-1.8.13-compiler.cmake src/cmake/compiler.cmake
+	cp -vf $DIST/oiio-1.8.13-Makefile .
 
 	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET ILMBASE_HOME=$TARGET \
 		VERBOSE=0 USE_FFMPEG=0 EMBEDPLUGINS=1 \
