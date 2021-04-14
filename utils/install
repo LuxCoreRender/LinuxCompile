@@ -23,7 +23,7 @@ if echo $LUX_TAG | grep -iq 'sdk' ; then
 
 	mkdir $TARGET/$LUX_TAG/lib
 	cp $LUX_TAG/lib/*.so $TARGET/$LUX_TAG/lib
-	cp $TARGET/lib/libOpenImageDenoise.so.0 $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/$LUX_TAG/lib
+	cp $TARGET/lib/libOpenImageDenoise.so.1 $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/lib/libtbb.so.12 $TARGET/$LUX_TAG/lib
  	cp -a $TARGET/lib/libnvrtc* $TARGET/$LUX_TAG
 
 	cp $LUX_TAG/README.md $TARGET/$LUX_TAG
@@ -73,7 +73,7 @@ else
 
 	cp $LUX_TAG/bin/luxcoreui $TARGET/$LUX_TAG
 	cp $LUX_TAG/lib/*.so $TARGET/$LUX_TAG
-	cp $TARGET/lib/libOpenImageDenoise.so.0 $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/$LUX_TAG
+	cp $TARGET/lib/libOpenImageDenoise.so.1 $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/lib/libtbb.so.12 $TARGET/$LUX_TAG
  	cp -a $TARGET/lib/libnvrtc* $TARGET/$LUX_TAG
 
 	cp $LUX_TAG/README.md $TARGET/$LUX_TAG
@@ -104,7 +104,7 @@ if [[ -d "LuxMark" ]] ; then
 	mkdir $TARGET/luxmark/lib
 
 	cp $LUX_TAG/bin/luxcoreui $TARGET/luxmark
-	cp $TARGET/lib/libOpenImageDenoise.so.0 $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/luxmark/lib
+	cp $TARGET/lib/libOpenImageDenoise.so.1 $TARGET/lib/libembree3.so.3 $TARGET/lib/libtbb.so.2 $TARGET/lib/libtbbmalloc.so.2 $TARGET/lib/libtbb.so.12 $TARGET/luxmark/lib
 	#cp $TARGET/qt5-v5.12.2/lib/libQt5Widgets.so $TARGET/luxmark/libQt5Widgets.so.5
 	#cp $TARGET/qt5-v5.12.2/lib/libQt5Network.so $TARGET/luxmark/libQt5Network.so.5
 	#cp $TARGET/qt5-v5.12.2/lib/libQt5Gui.so $TARGET/luxmark/libQt5Gui.so.5
