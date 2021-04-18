@@ -103,7 +103,8 @@ export LDFLAGS="-static-libgcc -static-libstdc++"
 CONFIGOPTS="--build=$CBUILD --host=$CHOST"
 export CFLAGS="$6"
 export CXXFLAGS="${CFLAGS}"
-export MAKEOPTS="-j"$(( `grep processor /proc/cpuinfo | wc -l` + 1))
+export CORE_COUNT=$(( `grep processor /proc/cpuinfo | wc -l` + 1))
+export MAKEOPTS="-j $CORE_COUNT"
 export TMP="$WORK"
 export TEMP="$WORK"
 export TMPDIR="$WORK"
@@ -376,16 +377,12 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage openimageio oiio*.tar.gz
 
 	echo " * Patching OpenImageIO"
-	cp -vf $DIST/oiio-1.8.13-plugin.cpp src/libutil/plugin.cpp
-	cp -vf $DIST/oiio-1.8.13-filesystem.cpp src/libutil/filesystem.cpp
-	cp -vf $DIST/oiio-1.8.13-compiler.cmake src/cmake/compiler.cmake
-	cp -vf $DIST/oiio-1.8.13-Makefile Makefile
 
-	if CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET ILMBASE_HOME=$TARGET \
-		VERBOSE=0 USE_FFMPEG=0 EMBEDPLUGINS=1 \
+	if CMAKE_BUILD_PARALLEL_LEVEL=$CORE_COUNT CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET ILMBASE_HOME=$TARGET \
+		VERBOSE=1 USE_FFMPEG=0 EMBEDPLUGINS=1 \
 		USE_OPENGL=0 USE_QT=0 USE_GIF=0 USE_OPENJPEG=0 USE_OPENSSL=0 \
 		USE_FIELD3D=0 USE_OCIO=0 USE_OPENCV=0 USE_PYTHON=0 \
-		BUILDSTATIC=1 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 \
+		BUILD_SHARED_LIBS=0 LINKSTATIC=1 OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 \
 		STOP_ON_WARNING=0 ; then
 		echo " * openimageio compiled successfully"
 	else
