@@ -89,7 +89,7 @@ fi
 echo " * Done checking libstdc++"
 
 echo " * Checking python"
-PYVER=`python3 --version 2>&1`
+PYVER=`${PYTHON_CMD} --version 2>&1`
 if [ `echo $PYVER | cut -d' ' -f2 | cut -d'.' -f1` != '3' ] ; then
     echo " !!! Python major version '3' is required"
 	exit 1

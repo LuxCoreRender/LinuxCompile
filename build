@@ -108,6 +108,8 @@ export MAKEOPTS="-j $CORE_COUNT"
 export TMP="$WORK"
 export TEMP="$WORK"
 export TMPDIR="$WORK"
+#export PYTHON_CMD="python3.7"
+export PYTHON_CMD="python3"
 
 unset CC CXX
 if [[ -e "${ROOT}"/use_clang ]] ; then
@@ -142,7 +144,7 @@ if ! $ROOT/utils/prepare "$TARGET" "$DIST" ; then exit 1 ; fi
 
 PYTHON_LIB=`find $TARGET -name 'libpython*'`
 PYTHON_VARIANT=`if $(basename "$PYTHON_LIB" | grep -q 'm') ; then echo 'm' ; fi`
-PYTHON_INCLUDE=`find /usr/include -type d -name "python3*${PYTHON_VARIANT}" | awk '{ print length($0) " " $0; }' $file | sort -r -n | cut -d ' ' -f 2- | tail -n1 | sed s/'\n'//`
+PYTHON_INCLUDE=`find /usr/include -type d -name "${PYTHON_CMD}*${PYTHON_VARIANT}" | awk '{ print length($0) " " $0; }' $file | sort -r -n | cut -d ' ' -f 2- | tail -n1 | sed s/'\n'//`
 echo " * Using Python library path: $PYTHON_LIB"
 echo " * Using Python include path: $PYTHON_INCLUDE"
 echo
@@ -216,7 +218,7 @@ NEXT=1.2
 if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage boost boost*.tar.gz
 
-	PYVER=`python3 --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
+	PYVER=`${PYTHON_CMD} --version 2>&1 | cut -d' ' -f2 | cut -d '.' -f'1 2'`
 	TOOLSET=`if [[ $CLANG ]] ; then echo clang ; else echo gcc ; fi`
 	echo " * Compiling boost for python-${PYVER}"
 	sleep 1
