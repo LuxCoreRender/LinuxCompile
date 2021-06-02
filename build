@@ -379,7 +379,7 @@ if [[ $STAGE && $STAGE < $NEXT ]] ; then
 	begin_stage openimageio oiio*.tar.gz
 
 	echo " * Patching OpenImageIO"
-	cp -vf $DIST/oiio-2.2.13.1-filesystem.cpp src/libutil/filesystem.cpp
+	cp -vf $DIST/oiio-2.2.13.1-compiler.cmake src/cmake/compiler.cmake
 
 	if CMAKE_BUILD_PARALLEL_LEVEL=$CORE_COUNT CMAKE_PREFIX_PATH=$TARGET make $MAKEOPTS BOOST_HOME=$TARGET ILMBASE_HOME=$TARGET \
 		VERBOSE=1 USE_FFMPEG=0 EMBEDPLUGINS=1 \
