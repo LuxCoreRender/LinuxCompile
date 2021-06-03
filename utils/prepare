@@ -40,7 +40,7 @@ function verify_hash() {
 
 echo " * Checking distfiles"
 FILE=linux_deps.tgz
-HASH=9664a096d3ae0664a1508ea8db41067f8a4405bf
+HASH=7aab4a72ffebe961f0df734364436c99f29f4708
 URL=https://github.com/LuxCoreRender/LinuxCompileDeps/releases/download/luxcorerender_v2.6alpha0/linux_deps.tgz
 if [ ! -f $DIST/$FILE ] ; then
 	echo " * Downloading $FILE"
@@ -99,8 +99,10 @@ PYLIB=libpython"$PYVER".a
 PYLIBm=libpython"$PYVER"m.a
 if echo $TARGET | grep -q '\-64' ; then EXT="64" ; fi
 if [[ ! -e $TARGET/lib/$PYLIB ]] ; then
-	echo " * Library symlink is missing, attempting to figure out the proper location"
+    echo " * Library symlink is missing, attempting to figure out the proper location"
     if PYLIBPATH=/usr/lib${EXT}/$PYLIB && [[ -e $PYLIBPATH ]] ; then
+    	symlink_python $PYLIB $PYLIBPATH
+    elif PYLIBPATH=/usr/lib/${ARCH}-linux-gnu/$PYLIB && [[ -e $PYLIBPATH ]] ; then
     	symlink_python $PYLIB $PYLIBPATH
     elif PYLIBPATH=/usr/lib/${ARCH}-linux-gnu/$PYLIBm && [[ -e $PYLIBPATH ]] ; then
     	symlink_python $PYLIB $PYLIBPATH
