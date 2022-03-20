@@ -108,7 +108,8 @@ export MAKEOPTS="-j $CORE_COUNT"
 export TMP="$WORK"
 export TEMP="$WORK"
 export TMPDIR="$WORK"
-export PYTHON_CMD="python3.10"
+#export PYTHON_CMD="python3.10"
+export PYTHON_CMD="python3"
 
 unset CC CXX
 if [[ -e "${ROOT}"/use_clang ]] ; then
